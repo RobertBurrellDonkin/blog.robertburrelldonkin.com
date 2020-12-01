@@ -24,8 +24,8 @@
     "gatsby-plugin-offline": "^3.3.3",
     "gatsby-plugin-sitemap": "^2.5.1",
     "gatsby-plugin-webpack-bundle-analyser-v2": "^1.1.13",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   },
   "devDependencies": {
     "cross-env": "^7.0.2"

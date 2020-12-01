@@ -26,11 +26,11 @@ module.exports = {
         externalLinks: [
           {
             name: `Twitter`,
-            url: `https://twitter.com/lekoarts_de`,
+            url: `https://twitter.com/itstechupnorth`,
           },
           {
-            name: `Instagram`,
-            url: `https://www.instagram.com/lekoarts.de/`,
+            name: `Curriculum Vitae`,
+            url: `https://www.robertburrelldonkin.com`,
           },
         ],
       },

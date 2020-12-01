@@ -4,7 +4,7 @@
   </a>
 </p>
 <h1 align="center">
-  Gatsby Starter: Minimal Blog
+  A Life Engineering Software
 </h1>
 
 <p align="center">
