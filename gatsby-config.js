@@ -6,7 +6,22 @@ const shouldAnalyseBundle = process.env.ANALYSE_BUNDLE
 
 module.exports = {
   siteMetadata: {
-    siteTitleAlt: `Minimal Blog - Gatsby Theme`,
+    // Used for the title template on pages other than the index site
+    siteTitle: `A Life Engineering Software`,
+    // Default title of the page
+    siteTitleAlt: `A Life Engineering Software`,
+    // Can be used for e.g. JSONLD
+    siteHeadline: `A Life Engineering Software`,
+    // Will be used to generate absolute URLs for og:image etc.
+    siteUrl: `https://blog.robertburrelldonkin.com`,
+    // Used for SEO
+    siteDescription: `Typography driven, feature-rich blogging theme with minimal aesthetics. Includes tags/categories support and extensive features for code blocks such as live preview, line numbers, and line highlighting.`,
+    // Will be set on the <html /> tag
+    siteLanguage: `en`,
+    // Used for og:image and must be placed inside the `static` folder
+    siteImage: `/banner.jpg`,
+    // Twitter Handle
+    author: `@itstechupnorth`,
   },
   plugins: [
     {
@@ -19,8 +34,16 @@ module.exports = {
             slug: `/blog`,
           },
           {
+            title: `Tags`,
+            slug: `/tags`,
+          },
+          {
             title: `About`,
             slug: `/about`,
+          },
+          {
+            title: `Thanks`,
+            slug: `/thanks`,
           },
         ],
         externalLinks: [
