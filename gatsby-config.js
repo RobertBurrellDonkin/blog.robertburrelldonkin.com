@@ -29,6 +29,14 @@ module.exports = {
             url: `https://twitter.com/itstechupnorth`,
           },
           {
+            name: `Apache`,
+            url: `https://home.apache.org/~rdonkin/`,
+          },
+          {
+            name: `GitHub`,
+            url: `https://github.com/RobertBurrellDonkin`,
+          },
+          {
             name: `Curriculum Vitae`,
             url: `https://www.robertburrelldonkin.com`,
           },
