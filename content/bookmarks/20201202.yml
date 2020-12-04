@@ -1,0 +1,28 @@
+---
+ title: Debizium
+ url: https://debezium.io/
+ tags:
+  - kafka
+---
+ title: Egghead
+ url: https://egghead.io/courses/gatsby-theme-authoring
+---
+ title: Cayote
+ url: https://github.com/lensesio/coyote
+ tags:
+   - kafka
+   - landoop
+ notes:
+   - integration testing agent used by Landoop
+   - Really like the way Landoop UI runs a test suits
+---
+ title: Figma
+ url: https://www.figma.com
+---
+
+
+
+
+
+
+
