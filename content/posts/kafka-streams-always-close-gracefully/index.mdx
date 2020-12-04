@@ -1,0 +1,14 @@
+---
+title: "Tips and Tricks: Kafka Streams"
+date: 2020-12-03
+slug: "/kafka-streams-shutdown-hook"
+canonicalUrl: "https://blog.robertburrelldonkin.com"
+---
+
+Always close streams gracefully on shutdown
+```
+        final KafkaStreams streams = new KafkaStreams(topology, config);
+//        streams.start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+``
