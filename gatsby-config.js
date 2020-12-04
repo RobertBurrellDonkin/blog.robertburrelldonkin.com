@@ -7,15 +7,15 @@ const shouldAnalyseBundle = process.env.ANALYSE_BUNDLE
 module.exports = {
   siteMetadata: {
     // Used for the title template on pages other than the index site
-    siteTitle: `A Life Engineering Software`,
+    siteTitle: `SITE TITLE A Life Engineering Software`,
     // Default title of the page
-    siteTitleAlt: `A Life Engineering Software`,
+    siteTitleAlt: `SITE TITLE ALT A Life Engineering Software`,
     // Can be used for e.g. JSONLD
-    siteHeadline: `A Life Engineering Software`,
+    siteHeadline: `SITE HEADLINE A Life Engineering Software`,
     // Will be used to generate absolute URLs for og:image etc.
     siteUrl: `https://blog.robertburrelldonkin.com`,
     // Used for SEO
-    siteDescription: `Typography driven, feature-rich blogging theme with minimal aesthetics. Includes tags/categories support and extensive features for code blocks such as live preview, line numbers, and line highlighting.`,
+    siteDescription: `SITE DESCRIPTION`,
     // Will be set on the <html /> tag
     siteLanguage: `en`,
     // Used for og:image and must be placed inside the `static` folder
