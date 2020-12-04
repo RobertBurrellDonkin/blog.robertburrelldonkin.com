@@ -2,5 +2,5 @@
 
 My thanks to:
  * @LekoArts for the theme
- * Gatsby for the generator
+ * https://github.com/gatsbyjs for the generator
  * Netlify for hosting static site gratis
