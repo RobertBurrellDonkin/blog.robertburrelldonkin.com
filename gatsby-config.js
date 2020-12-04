@@ -15,7 +15,7 @@ module.exports = {
     // Will be used to generate absolute URLs for og:image etc.
     siteUrl: `https://blog.robertburrelldonkin.com`,
     // Used for SEO
-    siteDescription: `SITE DESCRIPTION`,
+    siteDescription: `Professional online journal focussing on software engineering using open source, agile and lean methodologies in programming languages including Java, Scala, JavaScript, Ruby and Python featuring technologies such as Spring Boot and Apache Kafka`,
     // Will be set on the <html /> tag
     siteLanguage: `en`,
     // Used for og:image and must be placed inside the `static` folder
@@ -63,6 +63,10 @@ module.exports = {
             name: `Curriculum Vitae`,
             url: `https://www.robertburrelldonkin.com`,
           },
+          {
+            name: `LinkedIn`,
+            url: `https://www.linkedin.com/in/robertburrelldonkin`,
+          },
         ],
       },
     },
@@ -70,9 +74,9 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `minimal-blog - @lekoarts/gatsby-theme-minimal-blog`,
-        short_name: `minimal-blog`,
-        description: `Typography driven, feature-rich blogging theme with minimal aesthetics. Includes tags/categories support and extensive features for code blocks such as live preview, line numbers, and code highlighting.`,
+        name: `A Life Engineering Software`,
+        short_name: `engineering-blog`,
+        description: `Professional online journal focussing on software engineering using open source, agile and lean methodologies in programming languages including Java, Scala, JavaScript, Ruby and Python featuring technologies such as Spring Boot and Apache Kafka`,
         start_url: `/`,
         background_color: `#fff`,
         theme_color: `#6B46C1`,
