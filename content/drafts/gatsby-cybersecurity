@@ -1,0 +1,37 @@
+Gatsby
+
+In this age of globaly distributed content networks, pushing content close to your readers improves performance.
+
+This is an engineering blog so let's qualify. A CDN caches content across the world and serves it from the closest cache.
+
+ * The trip from your read to the closet cache is shorter, **reducing latency**.
+ * Content served from a cache is not read from a central store, **reduce load** on that store.
+ * Static content is retrieved without processing, **reduce load**.
+
+This performance improvement enables cost reductions allowing static content to be served *gratis* by many vendors.
+
+Okay. Bit of rush but I'd like to talk about a more subtle quality. In this new age, poor cybersecurity can lead to
+real costs for businesses.
+
+# Security
+
+The internet is a hostile place. Running a data store and a server out in the wild is a risk.
+
+It's about the surface area you need to secure. The data stores and processors used to serve content are complex,
+requiring specialist knowledge to secure and provide pathways for attackers to bypass the corporate security
+parimeter.
+
+In any case, content development and creators need to be secured but now that technologies like Gatsby allow you to
+isolation these activities from content .
+
+# The Future
+
+Continuous delivery pipeline
+
+# A Note on History
+
+Static site generators have been around forever. I may even have contributed a little to a few back in my Apache days.
+In the early days of the web, processing power was expensive.
+
+The cloud changes everything and changed the balance of advantage between static and dynamic solutions.
+
