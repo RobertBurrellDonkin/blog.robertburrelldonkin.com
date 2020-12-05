@@ -1,0 +1,33 @@
+---
+ url: https://github.com/simplesteph/kafka-stack-docker-compose
+---
+ url: https://insomnia.rest/
+---
+ url: https://bonsai.io/
+---
+ notes:
+   - visual studio -> surprised me -. good for docker and avro schema
+---
+ url: https://lenses.io/
+---
+ url: https://hub.docker.com/r/landoop/fast-data-dev
+---
+ url: https://www.confluent.io/hub/
+---
+ notes:
+   - itzg/elasticsearch:2.4.3 with plugin appbaseio/dejavu <- elasticsearch had a well-earned reputation for behaving badly when setup by clueless idiots -> containers change this
+---
+ url: https://sqlectron.github.io/
+---
+ url: https://github.com/jcustenborder/kafka-connect-archtype
+---
+ title: Zoo navigator
+---
+ title: Atom
+---
+ title: Zookeeper shell
+---
+ title: zookeeper four letter
+---
+ title: Netflix exhibitor
+
