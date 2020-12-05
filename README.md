@@ -12,7 +12,9 @@ Now, it's 2020 and I'm returning once more to data engineering after a bit of a 
 
 This is the source for my third blog - [A Life Engineering Software](https://blog.robertburrelldonkin.com/).
 
-Where *Wierdest Undreampt Use Case* was edgy, as the name suggests I hope that *A Life Engineering Software* turned out to be more measured and moderate. I think I'm about ready for a bit more of that in my life as well as my blog.
+Where *Wierdest Undreampt Use Case* was edgy, as the name suggests I hope that *A Life Engineering Software* turns out to be more measured and moderate. I think I'm about ready for a bit more of that in my life as well as my blog.
+
+Where *It's Tech Up North* was all about agile and lean, as the name suggests I hope that *A Life Engineering Software* focusses more on engineering and architecture. I believe that the agile and lean movements have matured and that I've handed the batton on the professionals who have made the study of engineering methods their specialism. 
 
 # My Thanks
 
