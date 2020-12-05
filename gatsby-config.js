@@ -68,6 +68,7 @@ module.exports = {
             url: `https://www.linkedin.com/in/robertburrelldonkin`,
           },
         ],
+        feedTitle: 'A Life Engineering Software by Robert Burrell Donkin'
       },
     },
     `gatsby-plugin-sitemap`,
