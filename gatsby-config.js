@@ -38,6 +38,10 @@ module.exports = {
             slug: `/tags`,
           },
           {
+            title: `Apache`,
+            slug: `/memberships/asf`,
+          },
+          {
             title: `About`,
             slug: `/about`,
           },
