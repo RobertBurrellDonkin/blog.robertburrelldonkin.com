@@ -1,0 +1,29 @@
+Spring Boot ```2.3``` brought buildpacks. Which is quietly quite a big thing for microservices.
+
+For me, advaantages such as
+
+ * No more ```Dockerfile```
+ * Declarative containerization
+
+A key advantage promised by ```buildpacks``` is improved efficiency.
+
+---
+
+Let me explain why I've always considered committing production Dockerfiles into development repositories a little
+bit of an antipattern, a evil that is no longer always necessary.
+
+Yet again, essentially it's about separation of concerns.
+
+Developers use Docker to developers. DevOps use Docker in production.
+
+Every resource that's unneccearily share increases communication waste and decreases productivity.
+
+Even when I'm solo, I find it distracting to have to consider ```DevOps``` when developing.
+
+With GitHub and GitLab making build pipelines so easy, there are really no longer any excuses left for not adoping
+continuous integration and deployment for every project. No matter how great or humble.
+
+Pipelines allow clearly handovers to be automated and demarkated. Only after development has run all its tests,
+only after the code has been checked for quality should a production image be built.
+
+Which is another good reason for using buildpacks.

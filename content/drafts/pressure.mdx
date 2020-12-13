@@ -1,0 +1,49 @@
+
+
+In a data center environment – whether a private enterprise or a zone within a cloud – the environment is rich and
+reliable. Yes, faults happen. Outages happen.
+
+But they are very much the exception, not the rule.
+
+Which comes around to retries. Retries increase the data pressure. Retry each message and the pressure doubles.
+An architecture intended to cope .
+
+Elastic architectures scale. This scaling is not instantaneous. If the rate at which the system is able to scale is
+less than the rate at which is pressure increases,
+
+---
+
+And elastic scaling comes at a cost. Even if your maximum rate of scalability exceeds the rate at which pressure
+increases, your enterprise may not be able to afford the cost.
+
+The basic proposition around elasticity is that each event is worth more than the cost to process.
+
+But each retry doubles the cost for processing that event. This may turn a profit into a loss.
+
+---
+
+Which explains why cold replaying often compliments hot retries as a strategy.
+
+Thinking forking a stream to storage or to logs is a common paradigm. Cold replaying means feeding back messages
+reconstituted from cold storage rather than hot messages somewhere in the system. It's a lot easier to manage pressure
+when feeding back data from cold storage using techniques like throttling based on current (hot) demand.
+
+---
+
+Like many unspoken architectural patterns, to the unitiated what goes without saying is too often missed or neglected.
+
+Now that streaming is mainstreaming, more and more engineers without specific expertise in this area are
+brought onboard. Knowledge that was implicit needs to be made explicit.
+
+And if cold replay is part of the strategic solution to manage pressure, let's add it on the diagram and talk about it.
+
+---
+
+Flooding... -> related to scaling.
+
+
+
+---
+
+
+The Internet of Things takes software back out into the wilds, into the jungle of
