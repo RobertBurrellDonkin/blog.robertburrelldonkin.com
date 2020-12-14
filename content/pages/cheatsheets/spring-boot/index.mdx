@@ -27,3 +27,276 @@ Available: ```2.3```
     </executions>
 </plugin>
 ```
+
+## Reactive
+
+### JSON
+
+Jackson will be used when included
+
+```
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-json</artifactId>
+        </dependency>
+```
+
+#### Tips and Tricks
+ * Be sure that encoding and decoding is okay
+
+### Data Access
+
+#### R2DBC
+
+```
+    @Bean
+    ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
+
+        ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
+        initializer.setConnectionFactory(connectionFactory);
+        initializer.setDatabasePopulator(new ResourceDatabasePopulator(new ClassPathResource("schema.sql")));
+
+        return initializer;
+    }
+```
+
+```spring.r2dbc.initialization-mode=always```
+
+```logging.level.org.springframework.data.r2dbc=DEBUG```
+
+```ReactiveCrudRepository```
+
+https://spring.io/projects/spring-data-r2dbc
+
+https://r2dbc.io/
+
+```
+
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.miku</groupId>
+            <artifactId>r2dbc-mysql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+```
+
+```
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-r2dbc</artifactId>
+        </dependency>
+```
+
+```
+    @Autowired
+    DatabaseClient databaseClient;
+```
+
+```StepVerifier```
+
+##### H2
+
+```
+
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+```
+
+```
+CREATE TABLE IF NOT EXISTS TODO (
+    id INT IDENTITY NOT NULL PRIMARY KEY,
+    description VARCHAR(254) NOT NULL
+);
+```
+
+### Routing
+
+Due to tooling limitations in ```2.4```, I prefer
+
+Simple okay
+
+```
+@Configuration
+class Router {
+    @Bean
+    RouterFunction<ServerResponse> routes() {
+        return route()
+                .GET("/",
+                        r -> ok()
+                                .build())
+                .build();
+    }...
+```
+
+### Testing Web Flux
+
+As Of: ```2.4```
+
+For tooling reasons, combine separate ```@WebFluxTest({Router.class})``` with end-to-end in Postman
+
+I try to keep my microservices **micro** and find controllers too much for many reactive microservices.
+
+Web flux tests are run by ```WebTestClient```.
+
+```
+@Autowired
+private WebTestClient client;
+```
+
+Style
+
+```
+client
+                .get()
+                .uri("/")
+                .exchange()
+                .expectStatus().isOk()
+```
+
+Json Path
+
+```.jsonPath("$[0].id").isEqualTo(ID)```
+
+
+## Annotation Style
+
+Response: ```ResponseEntity```
+
+### Sample
+
+```
+@RestController
+@RequestMapping("/todo")
+class TodoController {
+
+    private final IRepository repository;
+
+    TodoController(final IRepository repository) {
+        this.repository = repository;
+    }
+
+    @GetMapping()
+    Flux<Todo> getAll() {
+        return repository.findAll();
+    }
+
+    @PostMapping()
+    Mono<ResponseEntity<Void>> create(@RequestBody String description) {
+        return repository.save(new Todo(description))
+                .map(this::toPath)
+                .map(location -> ResponseEntity.created(location).build());
+    }
+
+    private URI toPath(final Todo todo) {
+        return URI.create(format("/todo/%d", todo.getId()));
+    }
+
+    @GetMapping("/{id}")
+    Mono<Todo> get(@PathVariable long id) {
+        return repository.findById(id)
+                .switchIfEmpty(notFound());
+    }
+
+    private Mono<Todo> notFound() {
+        return error(new ResponseStatusException(NOT_FOUND));
+    }
+
+    private Mono<Todo> badRequest() {
+        return error(new ResponseStatusException(BAD_REQUEST));
+    }
+
+    @PutMapping("/{id}")
+    Mono<Todo> update(@RequestBody Todo todo, @PathVariable long id) {
+        return nonNull(todo) && todo.getId() == id ? repository.save(todo).switchIfEmpty(badRequest()) : badRequest();
+    }
+}
+```
+
+## Functional Style
+
+Response: ```ServerResponse```
+
+### Sample
+
+```
+@Configuration
+class Router {
+
+    @Bean
+    RouterFunction<ServerResponse> routes(IRepository repository) {
+        return route()
+                .GET("/todo",
+                        r -> ok()
+                                .contentType(APPLICATION_JSON)
+                                .body(repository.findAll(), Todo.class))
+                .POST("/todo",
+                        r -> r
+                                .bodyToMono(String.class)
+                                .map(Todo::new)
+                                .flatMap(repository::save)
+                                .map(Todo::getId)
+                                .map(id -> format("/todo/%d", id))
+                                .map(URI::create)
+                                .flatMap(u -> created(u).build())
+                )
+                .GET("/todo/{id}",
+                        r ->
+                                repository
+                                        .findById(parseLong(r.pathVariable("id")))
+                                        .flatMap(
+                                                t -> ok()
+                                                        .contentType(APPLICATION_JSON)
+                                                        .bodyValue(t))
+                                        .switchIfEmpty(notFound().build())
+                )
+                .PUT("/todo/{id}",
+                        accept(APPLICATION_JSON),
+                        r ->
+                                r
+                                        .bodyToMono(Todo.class)
+                                        .filter(t -> t.hasSameId(r.pathVariable("id")))
+                                        .flatMap(repository::save)
+                                        .flatMap(t -> ok().contentType(APPLICATION_JSON).build())
+                                        .switchIfEmpty(badRequest().build())
+                )
+                .build();
+    }
+
+}
+```
+
+## Mapping
+
+### Constructors
+
+Jackson JSON constructor
+
+```
+    Todo(@JsonProperty("id") long id, @JsonProperty("description") String description) {
+        this.id = id;
+        this.description = description;
+    }
+```
+
+Repository constructor
+
+```
+
+    @PersistenceConstructor
+    public Todo(@JsonProperty String description) {
+        this.description = description;
+    }
+```
