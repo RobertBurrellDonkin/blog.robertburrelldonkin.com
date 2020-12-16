@@ -300,3 +300,425 @@ Repository constructor
         this.description = description;
     }
 ```
+
+=== Reactive Tests
+
+Remember that ```body``` sets type to JSON
+
+```
+    @Test
+    void whenTodoPUTShouldUpdateTodo() {
+        when(repository.save(any())).thenReturn(Mono.just(todo(anId)));
+
+        client
+                .put()
+                .uri("/todo/" + anId)
+                .body(Mono.just(todo(anId)), Todo.class)
+                .exchange()
+                .expectStatus().isOk();
+
+        verify(repository).save(argThat(
+                a -> TodoData.DESCRIPTION.equals(a.getDescription()) && anId == a.getId()));
+    }
+```
+
+When you pass json as a string, remember to set content type
+
+```
+
+    @Test
+    void putTodo() {
+
+        client.put()
+                .uri(SAMPLE_PATH())
+                .contentType(APPLICATION_JSON)
+                .bodyValue(SAMPLE_JSON)
+                .exchange()
+        ;
+
+        verify(repository).update(argThat(SampleData::matches));
+    }
+```
+
+---
+
+Neat trick with expect body mapping **GOTCHA** value only called when something returned.
+
+```
+
+    @Test
+    void putTodo() {
+        when(repository.update(argThat(SampleData::matches))).thenReturn(Mono.just(aTodo()));
+
+        client.put()
+                .uri(SAMPLE_PATH())
+                .contentType(APPLICATION_JSON)
+                .bodyValue(SAMPLE_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(APPLICATION_JSON)
+                .expectBody(Todo.class)
+                .value(SampleData::matches)
+        ;
+
+        verify(repository).update(argThat(SampleData::matches));
+    }
+```
+
+Sort of interesting question about best practice for returning
+
+```
+
+    private Mono<Todo> badRequest() {
+        return Mono.error(new ResponseStatusException(BAD_REQUEST));
+    }
+```
+
+Compare with https://www.baeldung.com/spring-webflux-404
+
+
+```
+@GetMapping(
+  value = "/bad-request"
+)
+public Mono<String> badRequest() {
+    return Mono.error(new IllegalArgumentException());
+}
+@ResponseStatus(
+  value = HttpStatus.BAD_REQUEST,
+  reason = "Illegal arguments")
+@ExceptionHandler(IllegalArgumentException.class)
+public void illegalArgumentHandler() {
+    //
+}
+```
+
+This might work better as a blog post
+
+I think reactive webflux encourages a minimal style of microservices. Unless there really is substantial business logic,
+I'll not bother with a serice class. I often perform some basic parameter checking for security reasons rather than
+business logic reasons. I would expect downstream consumers to use valid .
+
+Except edge components, of course. Should probably blog about this.
+
+----
+
+But in the good old days, we created ```TestData``` to build reusable data for unit testing.
+
+ * Quicker
+ * Less cluttered tests
+ * Allows maintance in one place
+ * Uniform options like random data
+
+I still like the idea but I'm trying out the SampleData name for size.
+
+Functional matches are great. I like the readabilirt.
+
+``` verify(mockTemplate).send(argThat(SampleData.SAMPLE_ID::equals), argThat(SampleData::matches));```
+
+This allows one line matchers into SAmpleData eg
+
+```
+
+public class SampleData {
+
+    public static final String SAMPLE_ID = "ID";
+    public static final String SAMPLE_DESCRIPTION = "A New Task";
+    public static final String SAMPLE_JSON = "{\"id\":\"ID\",\"description\":\"A New Task\"}";
+    public static final String NOT_SAMPLE_ID = SAMPLE_ID + "_NOT_";
+
+    public static Todo aTodo() {
+        return new Todo(SAMPLE_ID, SAMPLE_DESCRIPTION);
+    }
+
+    static boolean matches(Todo t) {
+        return nonNull(t) && SAMPLE_ID.equals(t.getId()) && SAMPLE_DESCRIPTION.equals(t.getDescription());
+    }
+}
+
+```
+
+---
+
+Post on step verifyer
+
+```this.subject
+                .findById(SAMPLE_ID)
+                .as(StepVerifier::create)
+                .assertNext(SampleData::matches)
+                .expectComplete()
+                .verify();
+```
+
+
+https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#boot-features-kafka
+
+```
+spring:
+  kafka:
+    consumer:
+      group-id: peach-rabbit-thistle
+      auto-offset-reset: earliest
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        "[spring.json.trusted.packages]": "com.example"
+
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        "[spring.json.add.type.headers]": false
+```
+
+https://www.confluent.io/blog/spring-kafka-can-your-kafka-consumers-handle-a-poison-pill/
+
+ErrorHandlingDeserializer
+
+PoisonPill
+
+---
+
+Debugging web requests
+
+```spring.mvc.log-request-details```
+
+```spring.codec.log-request-details```
+
+----
+
+Shutdown hook disabling
+
+```SpringApplication.setRegisterShutdownHook(false)```
+
+---
+
+DevTools
+
+```spring-boot-devtools.yml```
+
+---
+
+VisualVM
+
+---
+
+Actuator Endpoints
+
+@Endpoint
+@ReadOperation
+@WriteOperation
+@DeleteOperation
+
+---
+
+@org.springframework.lang.Nullable
+
+org.springframework.core.io.Resource ...?
+
+---
+
+```
+
+Spring Boot Actuator manages the instrumentation of both RestTemplate and WebClient. For that, you have to get injected with an auto-configured builder and use it to create instances:
+
+    RestTemplateBuilder for RestTemplate
+
+    WebClient.Builder for WebClient
+```
+
+
+---
+
+https://github.com/square/okhttp#mockwebserver
+
+
+https://github.com/spring-projects/spring-framework/blob/master/spring-webflux/src/test/java/org/springframework/web/reactive/function/client/WebClientIntegrationTests.java
+
+---
+
+## Profiles
+
+```
+spring:
+  profiles:
+    active: "dev,hsqldb"
+
+```
+
+```
+
+
+spring:
+  profiles:
+    group:
+      production:
+      - "proddb"
+      - "prodmq"
+```
+
+Command line
+
+```
+--spring.profiles.active=dev,hsqldb
+```
+
+---
+
+# JPA
+
+(Taken from documentation - todo: try one)
+
+```
+
+import java.io.Serializable;
+import javax.persistence.*;
+
+@Entity
+public class City implements Serializable {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String state;
+```
+
+---
+
+H2 COnsole https://www.h2database.com/html/quickstart.html#h2_console
+
+```/h2-console```
+
+---
+
+Embedded Mongo
+
+```de.flapdoodle.embed:de.flapdoodle.embed.mongo```
+
+---
+
+LDAP
+
+https://ldap.com/unboundid-ldap-sdk-for-java/
+
+---
+
+Spring Data supports return of
+
+```Streamable```
+
+As well as
+
+```Stream<T>```
+
+---
+
+From docs
+
+```package-info.java
+
+@org.springframework.lang.NonNullApi
+package com.acme;
+```
+
+---
+
+Sample test using mockwebserver
+
+```
+
+@SpringBootTest
+class GatewayTest {
+
+    @Autowired
+    WebClient.Builder builder;
+
+    MockWebServer server;
+
+    WebClient client;
+
+    Gateway subject;
+
+    @BeforeEach
+    void start() throws IOException {
+        server = new MockWebServer();
+
+        server.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Cache-Control", "no-cache")
+                .setBody("[{\"id\": 123, \"description\": \"Do Something\"}, {\"id\": 1234, \"description\": \"Do Something Else\"}]"));
+
+        server.start();
+
+        client = builder
+                .baseUrl(this.server.url("/").toString())
+                .build();
+
+        subject = new Gateway(client);
+    }
+
+    @Test
+    void allTodos() throws InterruptedException {
+
+        subject.allTodos()
+                .as(StepVerifier::create)
+                .assertNext(todo -> matches(todo, 123, "Do Something"))
+                .assertNext(todo -> matches(todo, 1234, "Do Something Else"))
+                .verifyComplete();
+
+        assertThat(server.getRequestCount()).isEqualTo(1);
+    }
+
+    private void matches(Todo todo, int id, String description) {
+        assertThat(todo).isNotNull();
+        assertThat(todo.getId()).isEqualTo(id);
+        assertThat(todo.getDescription()).isEqualTo(description);
+    }
+
+
+    @AfterEach
+    void shutdown() throws IOException {
+        this.server.shutdown();
+    }
+}
+```
+
+Note should use a bom and need two dependencies
+
+
+```
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>mockwebserver</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okhttp-bom</artifactId>
+				<version>4.9.0</version>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+```
+
+---
+
+Can set properties on the command line
+
+```--server.port=9000```
+
+```$ SPRING_APPLICATION_JSON='{"acme":{"name":"test"}}' java -jar myapp.jar```
+

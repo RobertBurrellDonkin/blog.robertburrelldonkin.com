@@ -6,3 +6,37 @@ slug: "/cheatsheets"
 import {Link as GatsbyLink} from "gatsby"
 
 ## <GatsbyLink to='/cheatsheets/spring-boot'>Spring Boot</GatsbyLink>
+
+
+---
+
+## Json Path
+
+List
+
+```
+                .jsonPath("$").isArray()
+                .jsonPath("$").isNotEmpty()
+                .jsonPath("$[0].id").isEqualTo(ID)
+```
+
+Object
+
+```
+                .jsonPath("$.id").isEqualTo(anId)
+                .jsonPath("$.description").isEqualTo(TodoData.DESCRIPTION);
+```
+
+---
+
+## Mockito
+
+
+```
+verify(repository).listAll();
+```
+
+
+```
+        when(repository.listAll()).thenReturn(Flux.just(aTodo()));
+```
