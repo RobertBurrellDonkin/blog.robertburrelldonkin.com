@@ -2,3 +2,92 @@
 title: Cheatsheet – Amazon Web Services
 slug: "/cheatsheets/aws"
 ---
+
+# Containers
+
+Based on https://aws.amazon.com/containers/?nc2=h_ql_prod_ctn
+
+
+| Stack                      | Public Cloud                              | On Premises              |
+| -------------------------- | ------------------------------------------| ------------------------ |
+| OpenContainers eg Docker   | Amazon Elastic Container Service **ECS**  | Amazon **ECS** Anywhere |
+| Kubernates                 | Amazon Elastic Kubernetes Service **EKS** | Amazon **EKS** Anywhere |
+
+
+| Platform                   | Public Cloud                             |
+| -------------------------- | ---------------------------------------- |
+| Serverless                 | AWS **Fargate**                          |
+| Servers                    | Amazon Elastic Compute Cloud **EC2**     |
+
+
+| Solution                           | Public Cloud     | On Premises       |
+| ---------------------------------- | ---------------- | ----------------- |
+| **Networking** (Application Layer) | AWS **App Mesh** |  AWS **Outposts** |
+
+
+| Space                         | Solution                                  |
+| ----------------------------- | ----------------------------------------- |
+| Container registry            | Amazon Elastic Container Registry **ECR** |
+| Kubernates distribution       | Amazon **EKS Distro**                     |
+| Deployment pipelines          | AWS **Proton**                            |
+| Containerization tool         | AWS **App2Container**                     |
+| Command line deployment pipelines | AWS **AWS Copilot**                   |
+
+# Analytics
+
+https://aws.amazon.com/big-data/datalakes-and-analytics/?nc2=h_ql_prod_an
+
+AWS Analytics services
+Category
+Use cases
+AWS service
+Analytics
+Interactive analytics
+Amazon Athena
+Big data processing
+Amazon EMR
+Data warehousing
+Amazon Redshift
+Real-time analytics
+Amazon Kinesis
+Operational analytics
+Amazon Elasticsearch Service
+Dashboards and visualizations
+Amazon Quicksight
+Visual data preparation
+AWS Glue DataBrew
+Data movement
+Real-time data movement
+AWS Glue
+Amazon Managed Streaming for Apache Kafka (MSK)
+Amazon Kinesis Data Streams
+Amazon Kinesis Data Firehose
+Amazon Kinesis Video Streams
+Data lake
+Object storage
+Amazon S3
+AWS Lake Formation
+Backup and archive
+Amazon S3 Glacier
+AWS Backup
+Data catalog
+AWS Glue
+AWS Lake Formation
+Third-party data
+AWS Data Exchange
+Predictive analytics and machine learning
+Frameworks and interfaces
+AWS Deep Learning AMIs
+Platform services
+Amazon SageMaker
+
+
+# Streams
+
+| Space                        | Solution                           | Position               |
+| ---------------------------- | ---------------------------------- | ---------------------- |
+| Video Streams                |  Amazon **Kinesis** Video Streams  | **PAAS** fully managed |
+| Event Streams                |  Amazon **Kinesis** Data Streams   | **PAAS** fully managed |
+| Data Lake Ingress            |  Amazon **Kinesis** Data Firehose  | **PAAS** fully managed |
+| Stream Analytics with Flink  |  Amazon **Kinesis** Data Analysis  | **PAAS** fully managed |
+| Data Streaming               |  Amazon Managed Streaming for Apache Kafka **MSK** | **PAAS** fully managed |
