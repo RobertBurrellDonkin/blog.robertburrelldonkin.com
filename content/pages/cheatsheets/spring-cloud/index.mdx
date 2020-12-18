@@ -1,0 +1,54 @@
+---
+title: Cheatsheet – Spring Cloud
+slug: "/cheatsheets/spring-cloud"
+---
+
+There's a lot of
+
+Spring Cloud -> common patterns for *distributed system*
+
+ * **configuration management** https://microservices.io/patterns/externalized-configuration.html externalise configuration allows same microservice to run in different environments
+ * **service discovery** https://microservices.io/patterns/server-side-discovery.html enables a downstream service to call the right upstream instance
+ * **circuit breakers** https://microservihttps://github.com/Netflix/zuul/wiki https://github.com/Netflix/zuul/wiki/How-We-Use-Zuul-At-Netflix dynamic routing layer
+ * **micro-proxy** allows value to be added and observed like any other microservice
+ * **control bus** https://www.enterpriseintegrationpatterns.com/patterns/messaging/ControlBus.html event drive control channel
+ * **one-time tokens** https://microservices.io/patterns/security/access-token.html token allows upstream services to verify authorization
+ * **global locks** https://hazelcast.com/blog/long-live-distributed-locks/ https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html
+ * **leadership election** elect a leader from a cluster of candidates
+ * **distributed sessions** distributed session data throughout a cluster of nodes with no single point of failure
+ * **cluster state** distribute state throughout a cluster of nodes with no single point of failure
+
+
+ | Pattern                     | Features                   | Projects                   |
+ | --------------------------- | -------------------------- | ---------------------------|
+ | configuration management    | distributed/versioned | Spring Cloud Config (backed by git injected to ```environment```) Spring Cloud **Netflix** ```Archaius``` |
+ | service discovery           | dynamic registration+discovery | Spring Cloud **Netflix** ```Eureka``` |
+ | circuit breakers            | | Spring Cloud **Netflix** ```Hystrix``` |
+ | intelligent routing         | service-to-service calls | Spring Cloud **Netflix** ```Zuul``` |
+ | micro-proxy                 | | Spring Cloud **Netflix** ```Feign``` Spring Cloud **Netflix** ```Ribbon``` |
+ | control bus                 | messaging based | Spring Cloud Bus |
+ | one-time tokens             | | |
+ | global locks                | | |
+ | leadership election         | | |
+ | distributed sessions        | | |
+ | cluster state               | | |
+
+# Idiomatic Integration
+
+ | Project                     | Component                       | Relates to Pattern       |
+ | --------------------------- | -------------------------- | -------------------- |
+ | Spring Netflix              | Eureka                     | Service Discovery    |
+ |                             | Hystrix                    | Circuit Breaker      |
+ |                             | Archaius                   | Externalized Configuration |
+ |                             | Feign                      | Micro Proxy |
+ |                             | Ribbon                     | micro proxy
+ |                             | Zuul                       | intelligent routing |
+
+
+
+---
+
+
+
+
+#  Spring Cloud Data Flow

@@ -3,6 +3,71 @@ title: Cheatsheets
 slug: "/cheatsheets"
 ---
 
+In the internet, it's always Autumn.
+
+Every internet age has its golden Summer before the masses catch up, tune in and turn up.
+
+The early 00s was a golden age for search. At least for searches useful for software developers. Before Google,
+searching for something about ```xml``` on Alta Vista meant wading through pages of NSFW soft core adverts.
+There's a time and place for all things. But for me, ```xml``` and porn are no happy bed fellows.
+
+Google was different. Google was clean. Google was shiny.
+
+When you searched for ```xml``` on Google, you turned up useful information and erudite opinions by people you
+wanted listen to.
+
+There are just so many details.
+
+---
+
+Too much information to locate.
+
+I used to find my blog useful as a way to find stuff I spotted.
+
+This is a messy engineering blog, from the trenches (as they say). From within my workshop.
+
+So please don't expect finished, polished works. Just stuff I'm playing around with at the moment.
+
+One day I might run an indexer. Perhaps.
+
+
+---
+
 import {Link as GatsbyLink} from "gatsby"
 
 ## <GatsbyLink to='/cheatsheets/spring-boot'>Spring Boot</GatsbyLink>
+
+
+---
+
+## Json Path
+
+List
+
+```
+                .jsonPath("$").isArray()
+                .jsonPath("$").isNotEmpty()
+                .jsonPath("$[0].id").isEqualTo(ID)
+```
+
+Object
+
+```
+                .jsonPath("$.id").isEqualTo(anId)
+                .jsonPath("$.description").isEqualTo(TodoData.DESCRIPTION);
+```
+
+---
+
+## Mockito
+
+
+```
+verify(repository).listAll();
+```
+
+
+```
+        when(repository.listAll()).thenReturn(Flux.just(aTodo()));
+```
+
