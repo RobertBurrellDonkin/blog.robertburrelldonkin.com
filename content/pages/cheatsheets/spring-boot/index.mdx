@@ -41,6 +41,25 @@ Jackson will be used when included
         </dependency>
 ```
 
+Customize via environment properties
+
+eg
+
+```
+spring.jackson.deserialization.<feature_name>
+```
+
+https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto-customize-the-jackson-objectmapper
+
+```Jackson2ObjectMapperBuilderCustomizer```
+
+```
+	<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+```
+
 #### Tips and Tricks
  * Be sure that encoding and decoding is okay
 
@@ -98,6 +117,8 @@ https://r2dbc.io/
 ```
 
 ```StepVerifier```
+
+R2DBC supports new types better than SQL
 
 ##### H2
 
