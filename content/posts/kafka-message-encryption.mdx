@@ -1,0 +1,11 @@
+Compression uses a wrapper message
+
+Should be possible to use the same trick to allow messages
+
+Why...?
+
+TLS is expensive for Kafka as well as tricky to set up. And ACLs allows administrators to read data.
+
+If messages are encrypted on the producer then only clients able decrypt them can read them.
+
+Depends on the application. For example, personal data.
