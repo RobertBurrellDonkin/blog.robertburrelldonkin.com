@@ -38,3 +38,8 @@ export const KSQL = () => {
         <a href='https://www.udemy.com/certificate/UC-c52ad559-d9d1-41a8-9920-fc53af6c53b5/'>Apache Kafka Series - KSQL
             on ksqlDB for Stream Processing</a>)
 }
+
+export const SimpleSteph = () => {
+    return (
+        <a href='https://www.datacumulus.com/'>{"Stéphane Maarek"}</a>)
+}
