@@ -1,0 +1,16 @@
+---
+  url: https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying
+  quote: A log is perhaps the simplest possible storage abstraction. It is an append-only, totally-ordered sequence of records ordered by time.
+  attrib: Jay Kreps
+  source: "The Log: What every software engineer should know about real-time data's unifying abstraction"
+---
+  url: https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying
+  quote: Data integration is making all the data an organization has available in all its services and systems.
+  attrib: Jay Kreps
+  source: "The Log: What every software engineer should know about real-time data's unifying abstraction"
+---
+  url: https://www.oreilly.com/content/why-local-state-is-a-fundamental-primitive-in-stream-processing/
+  quote:  By making data access local, we allow the stream processing job to thrash its own local disk or SSDs without fear of interrupting any online services.
+  attrib: Jay Kreps
+  source: Why local state is a fundamental primitive in stream processing
+---
