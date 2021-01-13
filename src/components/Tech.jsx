@@ -32,3 +32,15 @@ export const Java = () => {
 export const OpenSource = () => {
     return (<a href='https://opensource.org/'>open source</a>)
 }
+
+export const KSQL = () => {
+    return (<a href='https://www.confluent.io/product/ksql/'>KSQL</a>)
+}
+
+export const KafkaStreams = () => {
+    return (<a href='https://kafka.apache.org/documentation/streams/'>Kafka Streams</a>)
+}
+
+export const Kafka = () => {
+    return (<a href='https://kafka.apache.org/'>Apache Kafka</a>)
+}
