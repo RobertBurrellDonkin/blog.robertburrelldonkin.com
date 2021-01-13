@@ -1,9 +1,28 @@
 /** @jsx jsx */
 import {jsx} from "theme-ui"
 import {Link as GatsbyLink} from "gatsby";
+import PropTypes from 'prop-types';
+
+const LifelongLink = (props) => {
+    return (<GatsbyLink
+        to={'/lifelong-learning/' + props.topic}>{props.children ? props.children : props.moniker}</GatsbyLink>)
+}
+
+LifelongLink.propTypes = {
+    topic: PropTypes.string.isRequired,
+    moniker: PropTypes.string.isRequired
+}
 
 export const AWS = (props) => {
-    return (<GatsbyLink to='/lifelong-learning/aws'>{props.children}</GatsbyLink>)
+    return (<LifelongLink moniker='AWS' topic='aws'>{props.children}</LifelongLink>)
+}
+
+export const GCP = (props) => {
+    return (<LifelongLink moniker='GCP' topic='gcp'>{props.children}</LifelongLink>)
+}
+
+export const Scala = (props) => {
+    return (<LifelongLink moniker='Scala' topic='scala'>{props.children}</LifelongLink>)
 }
 
 export const Kafka = (props) => {
