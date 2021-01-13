@@ -1,20 +1,33 @@
 ---
-title: KSQL — The Whys and Wherefores
+title: KSQL — Whys and Wherefores
 date: 2020-12-30
 tags:
  - kafka
  - ksql
  - continuing professional development
+ - architecture
 ---
 
-One of the things I'm looking for in a course is to understand why I'd be motivated to use this technology.
-With an architects hat on, *why* means *when* — when is this approach more suitable than the alternatives.
+import {KSQL as KsqlCourse} from "../../src/components/LifelongLearning"
 
-Yes, KSQL is advertised as lowering the learning curve for people familiar with SQL. I'm sure it does.
-The feel is very familiar from the days way back when.
+import {KSQL as KsqlDB, KafkaStreams, Kafka} from "../../src/components/Tech"
 
-That's not a good enough reason, though.
+Finishing <KsqlCourse/> set me thinking...
 
-It's really that thanks to Kafka Streams, Kafka now easily supports a variety of distributed data store use cases.
+When investigating some new technology, one of the things I seek to discover is **why** people should learn this technology.
+With my architects hat on, **why** becomes most particular **when**. *When* should an architect ask that a team
+adopt this technology.
 
-And KSQL is a good match for relational distributed data stores.
+Yes, <KsqlDB/> is often advertised as lowering the learning curve for SQL people. I'm sure it does. The feeling I had
+playing around with it is very familiar from the days way back when I coded a lot of data access stuff.
+
+But that's just a smart query language design choice.
+
+Being able to recycle old human resources lying around is nice but not precisely a notable architectural feature.
+
+Thanks to Kafka Streams and richer events streaming semantics, <Kafka/> now encompasses an ever expanding range of
+use cases within the distributed relational data stores. Which makes adding SQL support a natural move.
+
+In particular, query languages are great for discovery. KSQL enjoys an interactive command line.
+
+Going beyond the fine syntactic sugar, for me this ad hoc querying is the key architectural feature.
