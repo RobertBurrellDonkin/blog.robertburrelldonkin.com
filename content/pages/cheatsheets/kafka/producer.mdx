@@ -26,12 +26,38 @@ slug: "/cheatsheets/kafka/producer"
       * data loss when leader crashes before replicas written
    * ```acks=all``` wait for all **in-sync** replica to commit
       * data loss when leader and all in-sync replicas crash
+ * ```linger.ms```
+   * by default (```0```), producer sends batch as soon as sender thread available
+   * setting ```linger.ms``` above ```0``` waits
+     * significantly improves throughput, adds some latency
+     * until linger expires or batch is full
+     * improves compression efficiency
+     * lowers overhead per message
+ * ```buffer.memory``` limits **send buffer**
+     * when **send buffer** is full ```send``` blocks for ```max.block.ms``` waiting for space to be freed
+     * constrains resilience in cases when data is unable to be sent for data sources unable to handle **backpressure**
 
 ### Monitoring and Troubleshooting
  * ```client.id``` logical name string identified client application in metrics, logs and quotas
 
 ### Tuning Fire And Wait aka Asynchronous
  * ```max.block.ms``` limits time ```send``` blocks (when **send buffer** full) before timing out with error
+    * also when requesting metadata via ```partitionsFor```
+    * ```buffer.memory``` limits **send buffer**
+ * ```delivery.timeout.ms``` limits **total time** from ```send``` ready to success or producer gives up
+    * includes
+      * **batching** ```linger.ms``` defaults to zero
+      * **await send**
+      * **retries** ```retry.backoff.ms``` defaults to ```100ms```
+      * **inflight** ```request.timeout.ms```
+    * callback returns error once ```delivery.timeout.ms``` exceeded
+      * possible that broker committed message in this case
+    * to retry until window over, leave retries practically unlimited and set ```delivery.timeout.ms```
+  * ```request.timeout.ms``` limits in-flight time for each request before retrying or giving up
+  * ```retry.backoff.ms``` defaults to ```100ms```
+  * ```retries``` how many times a retryable error should be retried by the producer library before giving up
+    * more reliable to set ```delivery.timeout.ms``` based on estimated recovering time and leave ```retries``` high
+
 
 # Modes
  * Fire And Forget
@@ -68,6 +94,8 @@ slug: "/cheatsheets/kafka/producer"
 ``` producer.send(record, (meta, exception) -> ...) ```
 
  * **on error** exception is not null
+   * producer handles retries so pick some other strategy
+   * focus application logic on errors that are not retryable
  * **on success** exception is not null
  * metadata returned
  * callback executes in **main thread**
