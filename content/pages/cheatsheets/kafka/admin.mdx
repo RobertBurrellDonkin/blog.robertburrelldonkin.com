@@ -1,0 +1,51 @@
+---
+title: Cheatsheet – Apache Kafka – Admin
+slug: "/cheatsheets/kafka/admin"
+---
+
+# AdminClient API
+
+## Design Principals
+
+ * **Asynchronous**
+    * ```Result``` wrappers for ```Future```
+    * Considered complete on the **client** after **Controller** state updated
+ * Eventually consistent
+    * Success may be returned before change propagated to all brokers
+    * Read operations directed to least loaded broker, write to **Controller**
+ * **Options** parameter object specific to call
+ * **Flat Hierarchy**
+
+## Properties
+### Required
+ * ```bootstrap.servers```
+  * comma-separated ```host:port``` list of brokers
+  * at least one required
+  * no requirement for all brokers
+  * if all listed brokers are down, producer cannot make initial connection to cluster
+
+### Key Parameters
+ * ```client.dns.lookup``` special case handling
+    * ```resolve_canonical_bootstrap_servers_only``` SASL with single DNS alias
+    * ```use_all_dns_ips``` DNS alias listing IPs
+ * ```request.timeout.ms``` default **120s** includes retries
+
+## Use Cases
+ * Verify that topics have been set up correctly on start-up
+    * In particular, compaction
+ * Logging topic configuration on error or at start-up
+ * Exposing topic configuration as application metric
+ * Allowing an application to create clean topics when starting in development mode
+ * Exploring consumer groups to troubleshoot
+ * Read consumer lag directly via ```listConsumerGroupOffsets```
+ * Ad hoc tooling for site recovery by modifying consumer group data
+    * modifying offsets only allowed when group is **not active**
+ * Collect cluster meta-data metrics
+ * Deleting records for legal reasons
+ * Triggering leader elections
+ * Reassign replicas
+
+## Testing
+ * ```MockAdminClient```
+
+
