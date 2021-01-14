@@ -1,0 +1,83 @@
+---
+title: Cheatsheet – Apache Kafka – Producers
+slug: "/cheatsheets/kafka/producer"
+---
+
+# Properties
+
+## Required
+ * ```bootstrap.servers```
+  * comma-separated ```host:port``` list of brokers
+  * at least one required
+  * no requirement for all brokers
+  * if all listed brokers are down, producer cannot make initial connection to cluster
+ * ```key.servializer```
+ * ```value.serializer```
+
+## Important
+
+### Performance, Memory Use, Reliability
+ * ```acks``` the number of partition replicas where record must be committed before send is consider a success
+   * no direct impact **end-to-end** latency unless consumers allowed to read uncommitted data
+   * trades **producer latency** for **reliability**
+   * ```acks=0``` send as fast as network speed without waiting for a reply **high-throughput** **low-reliability**
+   * ```acks=1``` wait for leader replica to commit
+      * producer throughput constrained by in flight message limits
+      * data loss when leader crashes before replicas written
+   * ```acks=all``` wait for all **in-sync** replica to commit
+      * data loss when leader and all in-sync replicas crash
+
+### Monitoring and Troubleshooting
+ * ```client.id``` logical name string identified client application in metrics, logs and quotas
+
+### Tuning Fire And Wait aka Asynchronous
+ * ```max.block.ms``` limits time ```send``` blocks (when **send buffer** full) before timing out with error
+
+# Modes
+ * Fire And Forget
+ * Fire And Wait
+   * aka Blocking aka Synchronous
+ * Fire and Listen
+   * aka Non-blocking aka Asynchronous
+
+## Fire And Forget
+
+``` try{ producer.send(record) } catch (Exception e)  ```
+
+ * Ignore returned ```Future```
+ * ```send``` throws exceptions on error **before** push to broker
+   * ```SerializationException```
+   * ```BufferExhaustedException``` and ```TimeoutException``` indicate resource limits eg buffer full
+   * ```InteruptException``` on thread interrupt eg signal
+
+## Fire And Wait
+
+``` try{ producer.send(record).get() } catch (Exception e)  ```
+
+ * Blocks on ```Future```
+ * ```send``` throws exceptions on error **before** push to broker
+   * ```SerializationException```
+   * ```BufferExhaustedException``` and ```TimeoutException``` indicate resource limits eg buffer full
+   * ```InteruptException``` on thread interrupt eg signal
+ * ```get`` throws ExecutionException on error **after** push to broker **and**
+   * error is not retryable **or**
+   * retries were exhausted without success
+
+## Fire And Listen
+
+``` producer.send(record, (meta, exception) -> ...) ```
+
+ * **on error** exception is not null
+ * **on success** exception is not null
+ * metadata returned
+ * callback executes in **main thread**
+   * slow or blocking callbacks limit producer throughput
+   * allow callback ordering within **same partition** to be gauranteed
+ * ```send``` blocks
+   * when **send buffer** is full
+   * for ```max.block.ms``` before timing out with error
+
+
+
+
+
