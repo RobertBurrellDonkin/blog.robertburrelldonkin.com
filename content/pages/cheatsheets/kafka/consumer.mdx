@@ -29,6 +29,16 @@ slug: "/cheatsheets/kafka/consumer"
     * ```session.timeout.ms``` should be set
         * high enough to avoid rebalances on restart but
         * low enough to avoid too large data gaps for assigned partitions
+ * ```offsets.retention.minutes``` on broker defaults to **7 days**
+    * limits retention for empty groups
+    * If members rejoin an empty group after this time, the group will behave as if its new
+
+## Standalone Consumers
+ * No consumer group
+ * ```subscribe``` to a topic
+ * ```assign``` particular partitions
+ * but **not both** at the same time
+
 
 # Properties
 
@@ -64,7 +74,39 @@ slug: "/cheatsheets/kafka/consumer"
  * ```session.timeout.ms``` defaults to **10s**
     * lower values trade faster recovery for more rebalances
  * ```heartbeat.interval.ms```
-    * typically set to one-third of ```session.timeout.ms```
+    * often set to one-third of ```session.timeout.ms```
+ * ```max.poll.interval.ms``` default **5 mins**
+    * to cover the case where the consumer thread is locked but the **heartbeat** thread continues
+    * high enough to cover maximum time between polls for health consumer but low enough to prevent damage from hung consumer
+ * ```default.api.timeout.ms``` excludes ```poll``` timeout default **1 min**
+ * ```request.timeout.ms``` defaults **30s**
+    * when the broker has not responded within this time, close the connection and reconnect
+    * overloaded brokers need time to respond
+    * disconnect and reconnect adds overhead
+ * ```auto.offset.reset``` sets behaviour when consumer begins to read a partition without a valid committed offset
+    * ```latest``` **default** reads events sent after consumer starts
+    * ```none``` raises exception for custom handling
+    * ```earliest``` reads from first event retained in log
+ * ```enable.auto.commit```
+    * ```true``` **default** automatically commit every ```auto.commit.interval.ms```
+    * ```false``` program must include commit logic
+ * ```partition.assignment.strategy``` pass class name
+    * ```Range``` consecutive subset
+    * ```RoundRobin```
+    * ```Sticky``` balanced but retains as many as possible after rebalance
+    * ```CooperativeSticky```
+ * ```client.rack``` location awareness
+    * enables consumer read from closest relica rather than leader
+    * in cloud deployments, often zone
+ * ```receive.buffer.bytes```
+  * **-1** indicates OS default
+  * set higher when network links has high latency and lower bandwitch eg **WAN**
+ * ```send.buffer.bytes```
+  * **-1** indicates OS default
+  * set higher when network links has high latency and lower bandwitch eg **WAN**
+
+### Monitoring and Troubleshooting
+ * ```client.id``` logical name string identified client application in metrics, logs and quotas
 
 
 # Consumer Structure
@@ -86,4 +128,64 @@ slug: "/cheatsheets/kafka/consumer"
  * consumer must continue to poll or be considered dead
     * ```max.poll.interval.ms```
  * one consumer per thread
+ * ```enable.auto.commit``` **true** then
+    * every ```auto.commit.interval.ms```
+    * **commit** last offset in last poll
+    * checked in ```poll``` and ```close```
+    * increases messages duplicated during rebalance
+    * increases opportunties for missing messages
+ * ```enable.auto.commit``` **false** then
+    * responsibility falls on developer
+    * ```commitSync``` commits last offset returned by last poll
+        * retries any error that cannot be recovered
+        * very little useful handling possible for errors
+        * blocking
+        * limits throughput
+    * ```commitSync(offsets)``` commits specific offsets
+    * ```commitAsync```
+        * does not retry
+    * ```commitAsync(callback)```
+        * be aware that using callback for retry risks committing an earlier offset, increasing duplicates on rebalance
+            * often use sequence number to retry only latest
+        * failure to retry intermitant failures less important than committing last offset before rebalance or close
+        * ```commitSync``` before ```close``` common pattern
+    * ```commitAsync(offsets, callback)``` commits specific offsets
+    * **Rebalancing listeners** ```subscribe(topics, listener)
+        * useful for
+            * closing resources
+            * committing offsets
+        * ```onPartitionsAssigned``` after partitions assigned, before consumption
+        * ```onPartitionsRevoked```
+        * ```onPartitionsLost``` exceptional case
+        * Seek once partitions assigned
+            * Allows consumers to start from particular offsets, rather than last committed
+                * ```seekToBeginning```
+                * ```seekToEnd```
+                * ```seek(partition, offset)``` offsets might be stored in some other system
+                * storing in a data source allows atomic transaction
+            * Allows ```exactly-once``` semantics to be engineered
+    * ```consumer.wakeup``` called from another thread calls ```poll``` to fail with ```WakeupException```
+        * Use ```ShutdownHook``` when running from main thread
+
+# Schema
+## Avro
+    * Recommended to generate classes from schema
+
+### Key Advantages
+    * Schema Compatibility
+    * Binary
+
+### Key Disadvantage
+    * Schema included within file
+
+## Schema Registry
+
+ * Serdes identify immutable schema versions by ID and store in registry
+
+## Key Properties
+
+    * ```schema.registry.url```
+    * ```key.deserializer```
+    * ```value.deserializer```
+
 
