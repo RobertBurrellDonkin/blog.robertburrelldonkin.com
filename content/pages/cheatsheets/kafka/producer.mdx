@@ -139,7 +139,80 @@ slug: "/cheatsheets/kafka/producer"
    * when **send buffer** is full
    * for ```max.block.ms``` before timing out with error
 
+# Messages
+ * **key-value** pairs
+    * **key** defaults to ```null```
+    * messages with same **key** go to same **partition**
 
 
+# Partitions
+ * producer determines **partition**
+    * messages with same **key** expect to go to same **partition**
+ * **default partitioner**
+    * when key is **null**
+        * uses **sticky** round-robin, filling a batch before switching to next
+            * reduces requests, latency and broker CPU utilization
+    * when key **exists** uses an algorithm to hash key and map to partition
+        * **all** partitions included in map
+        * in the case that the partition is not available, then an error may need to be handled
+        * assignment consistent only whilst number of partitions remains constant
+            *  easy path is to set number of partition correctly and **never change** it
+ * standard alternatives useful when load may be skewed eg ETL from RDBMS by primary key
+    * ```RoundRobinPartitioner```
+    * ```StickyUniformPartitioner```
+ * create custom partitioner for edge cases
+    * eg. long tail
+    * Java hash algorithm may change between versions so use eg ```murmur2```
 
+
+# Schema
+## Avro
+    * Recommended to generate classes from schema
+
+### Key Advantages
+    * Schema Compatibility
+    * Binary
+
+### Key Disadvantage
+    * Schema included within file
+
+## Schema Registry
+
+ * Serdes identify immutable schema versions by ID and store in registry
+
+## Key Properties
+
+    * ```schema.registry.url```
+    * ```key.serializer```
+    * ```value.serializer```
+
+# Interceptors
+
+## Security
+ * Data redaction
+ * Can be applied without changes to client code
+
+## Monitoring and Troubleshooting
+ * Inject common headers
+ * Data capture
+ * Can be applied without changes to client code
+
+# Quotas
+ * For over-quota clients, broker
+    * throttles
+    * mutes communication channel
+ * Types
+    * ```produce``` rate, bytes per second
+    * ```consume``` rate, bytes per second
+    * ```request``` percentage of time devoted on broker network and request handler threads
+ * Application
+    * default
+    * by ```client.id```, user principal or both
+ * Static setting
+    * in broker config
+        * ```quota.producer.default```
+ * Dynamic setting
+    * ```kafka.config.sh```
+    * Client Admin API
+ * Important to plan and monitor capacity on brokers since consistently over-quota clients will begin to die
 
