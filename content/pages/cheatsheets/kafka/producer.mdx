@@ -16,7 +16,7 @@ slug: "/cheatsheets/kafka/producer"
 
 ## Important
 
-### Performance, Memory Use, Reliability
+### Throughput, Memory Use, Reliability
  * ```acks``` the number of partition replicas where record must be committed before send is consider a success
    * no direct impact **end-to-end** latency unless consumers allowed to read uncommitted data
    * trades **producer latency** for **reliability**
@@ -26,6 +26,7 @@ slug: "/cheatsheets/kafka/producer"
       * data loss when leader crashes before replicas written
    * ```acks=all``` wait for all **in-sync** replica to commit
       * data loss when leader and all in-sync replicas crash
+      * ```enable.indempotence``` allowed
  * ```linger.ms```
    * by default (```0```), producer sends batch as soon as sender thread available
    * setting ```linger.ms``` above ```0``` waits
@@ -36,6 +37,39 @@ slug: "/cheatsheets/kafka/producer"
  * ```buffer.memory``` limits **send buffer**
      * when **send buffer** is full ```send``` blocks for ```max.block.ms``` waiting for space to be freed
      * constrains resilience in cases when data is unable to be sent for data sources unable to handle **backpressure**
+ * ```compression.type``` compression trades reduced network utilization, storage on broker for increased CPU on producer and consumers
+    * ```snappy``` low CPU and good compression; recommended
+    * ```gzip```more cpu but better compression; recommended when network is the bottleneck
+    * ```lz4```
+    * ```zstd```
+ * ```batch.size```
+    * memory in bytes
+    * too small adds overhead thanks to more frequent sends
+    * too large wastes memory
+    * ```linger.ms``` limits latency added by batching
+ * ```max.in.flight.requests.per.connection```
+    * Set to **1** guarantees events written by broker in order sent even in the case of retries
+    * ```enable.indempotence```
+    * Higher increases **throughput** by improving batching efficiency whilst increasing **memory usage**
+ * ```max.request.size```
+    * limits batch size sent
+    * limits message size sent
+    * brokers have an independent setting and reject larger requests
+ * ```receive.buffer.bytes```
+    * **-1** indicates OS default
+    * set higher when network links has high latency and lower bandwitch eg **WAN**
+ * ```send.buffer.bytes```
+    * **-1** indicates OS default
+    * set higher when network links has high latency and lower bandwitch eg **WAN**
+ * ```enable.indempotence```
+    * idempotent producer
+        * attaches sequence number
+        * 5 message window
+        * rejects duplicate with ```DuplicateSequenceException``` which requires no further action by the producer
+    * requires (or config exception)
+        * ```max.in.flight.requests.per.connection``` **<=5**
+        * ```acks=all```
+        * ```retries``` **>0**
 
 ### Monitoring and Troubleshooting
  * ```client.id``` logical name string identified client application in metrics, logs and quotas
