@@ -1,0 +1,11 @@
+---
+url:
+quote: "It is well known that the majority of the cost of software is not in its initial development, but in its ongoing maintenance — fixing bugs, keeping its systems operational, investigating failures"
+attrib: Martin Kleppman
+source:
+---
+
+
+The operational burden of running and debugging two systems is going to be very high. And any new abstraction can only provide the features supported by the intersection of the two systems.
+Jay Kreps
+

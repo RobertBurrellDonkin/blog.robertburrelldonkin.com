@@ -1,0 +1,45 @@
+---
+title: Cheatsheet – Apache Kafka – Streams
+slug: "/cheatsheets/kafka/streams"
+---
+
+# Key Qualities
+
+ * **Scalability**
+    * **topic-partition** distributed to **consumers** within a **consumer group**
+    * capacity limited by
+        * **partitioning**
+        * **consumers**
+    * **elasticity** within **limits**
+        * **rebalancing** costs
+ * **Reliability**
+    * **consumer groups**
+        * **fault tolerance** through **rebalancing**
+ * **Maintainability**
+    * mature kafka ecosystem
+    * deployment agnostic using application resources
+    * **kappa** only, single model
+    * **stream-relational**
+ * **event-by-event** processing model
+    * **no** microbatching
+    * kafka achieves similar low latency, high throughput by higher parallelism
+        * note **partitioning** therefore key
+        * **depth-first**
+            * **slow** processors block ingress
+            * per **sub-topology**
+            * factor blocking processing into separate **sub-topologies**
+    * **kappa** architecture
+        * **no** lambda
+        * **not** hybrid
+    * **stream-relational**
+    * **dataflow programming** paradigm
+    * topologies are **templates**
+        * parallelized across **tasks** and **stream threads**
+        * **stream threads** ```num.stream.threads```
+
+# Properties
+
+## Key
+ * ```num.stream.threads```
+    * increasing tasks per thread increases CPU utilitization
+
