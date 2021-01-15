@@ -106,11 +106,18 @@ slug: "/cheatsheets/kafka/streams"
         * **aggregating**
         * **windowing**
     * topology includes **any** stateful operator
-
+    * **co-partitioning** may be required
+      * **related** events need to be handled by same task
+        * same **partition**
+            * keyed by same field partitioned to same partition
  * **Stateless**
     * ```Stream``` views **only**
     * no memory needed of previous events
     * topology includes **no** stateful operators
+    * **repartitioning** operators
+        * send to new internal topic
+        * read back from internal topic
+        * network round trip cost means these are often expensive operations
 
  * **Sinks**
 
@@ -134,22 +141,91 @@ slug: "/cheatsheets/kafka/streams"
  * ```flatMapValues``` multiple outputs for each input **retains key**
     * more efficient than ```map``` unless **rekeying**
  * ```merge```
+ * ```selectKey``` - **re-keys**
 
 ## Stateful
  * joins
     * ```join``` both sides share key
     * ```leftJoin``` when no match for left, right ```null```
     * ```outerJoin``` when no match, other side ```null```
+    * **co-partitioning**
+        * same number of partitions on each side of join checked at start up
+        * **unless** ```GlobalKTable```
+    * **changelog** internal topic backs state store
  * aggregation
-    * ```aggregate```
-    * ```reduce```
+    * **group by** before aggregation operation
+        * ```groupBy``` **repartitions** via internal topic
+        * ```groupByKey``` more efficient (less network costs) when retaining same key
+        * ```KGroupedStream```
+    * ```aggregate``` any type
+    * ```reduce``` same type
     * ```count```
+    * aggregating streams requires
+        *```initializer```
+        * ```adder```
+    * aggregating tables
+        *```initializer```
+        * ```adder```
+        * ```subtractor```
  * windowing
     * ```windowBy```
 
+# Windowing
+
+ * Time Semantics
+    * **Event time** when created at source
+    * **Ingestion time** when appended to a topic on the broker
+        * sometimes used to approximate *event time*
+    * **Processing time** when processed by streams application
+    * **Stream time** highest timestamp so far seen
+ * ```DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG``` **Timestamp extractor** used in windowing operations
+    * ```FailOnInvalidTimestamp``` **default**  uses record timestamp
+        * ```message.timestamp.type``` on broker controls how this is set
+        * ends processing should an event have an invalid timestamp
+    * ```LogAndSkipOnInvalidTimestamp``` uses record timestamp
+        * ```message.timestamp.type``` on broker controls how this is set
+        * ignores events with invalid timestamps
+    * ```WallclockTimestampExtractor``` uses processing time
+        * unusual choice for windowing
+    * Or custom extractor from data
+        * return negative timestamp to skip
+ * Window Types
+    * **Tumbling** ```TimeWindows.of(duration)```
+        * fixed size
+        * no overlap
+        * each event in unique window
+    * **Hopping** ```TimeWindows.of(duration).advanceBy(duration)```
+        * fixed size
+        * may overlap
+        * one event may be in more than one window
+    * **session** ```SessionWindow.with(duration)```
+        * variable sized
+        * separated by inactivity
+        * no guarantees of alignment between keys
+    * **sliding** aka **join** ```JoinWindow.of(duration)```
+        * fixed size
+        * based on event time difference
+ * Window operations produce windowed tables with multidimensional keys
+ * Window Results
+    * Event ordering in the log may not be the same as event time
+    * Events may be delayed
+    * Emission tradeoff latency vs completeness
+        * **default** optimizes latency using **continuous refinement**
+        * set **grace** to keep window open ```TimeWindows.of(duration).grace(duration)```
+        * suppress intermediary results
+            * ```Suppressed.untilWindowCloses``` emits final
+            * ```Suppressed.untilTimeLimit``` limits rate
+            * ```BufferConfig``` tunes buffering strategy
+ * **Partition group** buffers events from each stream
+    * priority given to **lowest** timestamp
+    * adjust slighty out-of-order
+
+
 # State Stores
 
-## Key Value Stores
+## Types
+
+### Key Value Stores
  * as opposed to windowed stores
  * One application may contain many state stores
  * Types
@@ -164,7 +240,23 @@ slug: "/cheatsheets/kafka/streams"
             * restored from disk, not rebuilt, potentially quicker recovery time
             * slower
 
-## Windowed Stores
+### Windowed Stores
+ * Support different interactive
+ * Multidimensional keys
+
+## Materilized Stores
+ * enables **interactive queries***
+ * force materialization to allow read only access outside the topology
+ * access by name and type using ```QueryableStoreTypes``` factory
+ * queries vary by store type
+ * iterators need to be closed
+ * queries include only local data
+ * global queries will require remote calls
+    * ```APPLICATION_SERVER_CONFIG``` communicated via **consumer group** to other group members
+    * ```queryMetadataForKey``` discovers instance that key is partitioned onto
+        * this uses partitioner to establish where the key would be located
+    * ```allMetadataForStore``` discovers all stores
+
 
 # Schemas
 
