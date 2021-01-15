@@ -15,6 +15,7 @@ slug: "/cheatsheets/kafka/streams"
  * **Reliability**
     * **consumer groups**
         * **fault tolerance** through **rebalancing**
+    * **fault tolerance** for stateful operations on application-side
  * **Maintainability**
     * mature kafka ecosystem
     * deployment agnostic using application resources
@@ -37,9 +38,47 @@ slug: "/cheatsheets/kafka/streams"
         * parallelized across **tasks** and **stream threads**
         * **stream threads** ```num.stream.threads```
 
+
+
 # Properties
 
 ## Key
  * ```num.stream.threads```
     * increasing tasks per thread increases CPU utilitization
+    * limited by cores
+    * limited by task count
 
+# APIs
+ * Start
+    * ```new KafkaStreams(topology, config).start()```
+ * Stop
+    * ```streams.close()```
+ * High level functional **DSL**
+    * ```builder.stream(name).foreach((k,v)->...)```
+ * Low level **Processor API**
+    * ```topology.addSource(name, source)```
+    * ```topology.addProcessor(name, processor)```
+ * **Stream** data model
+    * represents a **topic**
+    * interested in history of values for **key**
+        * within retention window
+    * consumed from Kafka
+    * ```KStream```
+ * **Table** data model
+    * also represents a **topic**
+    * interested only in **latest** (highest offset) value for **key**
+    * typically compacted topic ```cleanup.policy``` set to ```compact```
+    * **stateful**
+    * often used for **aggregations**
+    * materialized using application-side key-value store
+        * default **RocksDB**
+    * built on the application side
+    * ```KTable```
+        * also represents a **topic**
+        * **partitioned** following the topic
+        * **distributed** by partition
+    * ```GlobalKTable```
+        * complete unpartitioned copy
+ * **Stream-Table Duality**
+    * a stream might be reconstitute a table
+    * table changes might be logged as a stream
