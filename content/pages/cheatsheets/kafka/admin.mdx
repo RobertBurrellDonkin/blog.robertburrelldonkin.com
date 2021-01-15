@@ -52,7 +52,43 @@ slug: "/cheatsheets/kafka/admin"
 
 
 # REST Proxy
+ * Independent component
+ * Communicates with
+    * cluster
+    * schema registry
+ * Provides HTTP-based producers and consumers
+    * ```JSON``` to
+        * full Avro
+        * binary
+    * good for missing features especially those without good Avro support
+ * lower throughput than native
+ * caller responsible for batching
+
+## Deployment and Scaling Out
+ * multiple instances behind load balancer
 
 
+---
 
+# Schema Evolution
+
+ * Brokers adopt ```zero-copy```
+    * key and values just **bytes**
+    * no broker-side validation
+    * key architectural advantage
+ * Producers and consumers are responsible
+ * Need
+    * data to be self-describing
+    * to manage evolution
+    * most often addressed using **schema registry** pattern
+        * separate component
+        * allows producers and consumers to know when data is invalid
+
+## Confluent Schema Registry
+ * Most usual component
+ * Apache Avro
+    * Good at evolution
+    * Binary
+ * Producers store schemas in registry
+ * Consumers load schemas from registry
 
