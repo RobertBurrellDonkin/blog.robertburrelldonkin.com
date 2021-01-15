@@ -89,6 +89,11 @@ slug: "/cheatsheets/kafka/admin"
  * Apache Avro
     * Good at evolution
     * Binary
+    * ```avro-console-consumer```
+    * ```avro-console-producer```
  * Producers store schemas in registry
  * Consumers load schemas from registry
-
+ * Reduces message size by including ID for schema.
+ * Introduces points for failure
+ * Add maintenance
+ * Separate deployment

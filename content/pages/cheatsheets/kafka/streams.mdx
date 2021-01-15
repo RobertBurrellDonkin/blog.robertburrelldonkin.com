@@ -42,15 +42,22 @@ slug: "/cheatsheets/kafka/streams"
 
 # Properties
 
+## Required
+
 ## Key
  * ```num.stream.threads```
     * increasing tasks per thread increases CPU utilitization
     * limited by cores
     * limited by task count
+ * DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG
+    * ```LogAndFailExceptionHandler```
+    * ```LogAndContinueExceptionHandler```
 
 # APIs
  * Start
     * ```new KafkaStreams(topology, config).start()```
+        * non-blocking
+        * spawns processing **stream threads**
  * Stop
     * ```streams.close()```
  * High level functional **DSL**
@@ -82,3 +89,54 @@ slug: "/cheatsheets/kafka/streams"
  * **Stream-Table Duality**
     * a stream might be reconstitute a table
     * table changes might be logged as a stream
+
+# Operations
+ * **Stateful**
+    * ```Table``` views
+    * typical use cases
+        * **joining**
+        * **aggregating**
+        * **windowing**
+    * topology includes **any** stateful operator
+
+ * **Stateless**
+    * ```Stream``` views **only**
+    * no memory needed of previous events
+    * topology includes **no** stateful operators
+
+ * **Sinks**
+
+## Sinks ###
+ * ```to``` topology **terminator**
+ * ```through``` **deprecated** **sub-topology**
+ * ```repartition``` **sub-topology**
+
+## Stateless
+ * ```filter```
+    * filter as early as possible to reduce wasted processing
+ * ```filterNot```
+    * syntactic sugar
+    * improves readability
+ * ```print```
+ * ```branch```
+ * ```map``` **re-keys**
+ * ```mapValues``` **retains key**
+    * more efficient than ```map``` unless **rekeying**
+ * ```flatMap``` multiple outputs for each input **re-keys**
+ * ```flatMapValues``` multiple outputs for each input **retains key**
+    * more efficient than ```map``` unless **rekeying**
+ * ```merge```
+
+## Stateful
+ * ```count```
+
+# Schemas
+
+## Avro
+ * **Generic records** when schema isn't available at runtime
+ * **Specific records** generated from and include schema definition
+
+## Schema Registry
+ * Reduces message size by including ID for schema.
+ * ```schema.registry.url```
+ * ```AvroSerdes```
