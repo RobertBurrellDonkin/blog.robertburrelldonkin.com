@@ -71,6 +71,7 @@ slug: "/cheatsheets/kafka/streams"
         * within retention window
     * consumed from Kafka
     * ```KStream```
+    * stream of **fact**
  * **Table** data model
     * also represents a **topic**
     * interested only in **latest** (highest offset) value for **key**
@@ -84,8 +85,15 @@ slug: "/cheatsheets/kafka/streams"
         * also represents a **topic**
         * **partitioned** following the topic
         * **distributed** by partition
+        * **time synchronized**
     * ```GlobalKTable```
         * complete unpartitioned copy
+        * high local overhead for large keyspaces
+        * **not** time synchronized
+            * joins always against the latest
+    * behaviours
+    * relationships between events
+    * **stream-relational** snapshot of moving stream of facts
  * **Stream-Table Duality**
     * a stream might be reconstitute a table
     * table changes might be logged as a stream
@@ -128,7 +136,35 @@ slug: "/cheatsheets/kafka/streams"
  * ```merge```
 
 ## Stateful
- * ```count```
+ * joins
+    * ```join``` both sides share key
+    * ```leftJoin``` when no match for left, right ```null```
+    * ```outerJoin``` when no match, other side ```null```
+ * aggregation
+    * ```aggregate```
+    * ```reduce```
+    * ```count```
+ * windowing
+    * ```windowBy```
+
+# State Stores
+
+## Key Value Stores
+ * as opposed to windowed stores
+ * One application may contain many state stores
+ * Types
+    * **embedded** are internal and local associated with a task
+        * colocation improves availability and reduces network traffic
+        * fault tolerance through replay
+            * **stand by*** aka **shadow** replicas reduce fault recovery time
+        * high read availability through **stand by*** aka **shadow** replicas
+        * **persistent** write to local disk
+            * ```STATE_DIR_CONFIG``` default ```/tmp```
+            * limited by disk, not memory, space
+            * restored from disk, not rebuilt, potentially quicker recovery time
+            * slower
+
+## Windowed Stores
 
 # Schemas
 
