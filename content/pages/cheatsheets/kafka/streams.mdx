@@ -12,10 +12,27 @@ slug: "/cheatsheets/kafka/streams"
         * **consumers**
     * **elasticity** within **limits**
         * **rebalancing** costs
+    * **standby** replicas for state stores
+    * **rebalancing costs**
+        * **sticky assignment** by default
+            * where possible, tasks with state remain on same machine after rebalance
+        * **but** need to prevent **unnecessary rebalances**
+            * rolling bounce may trigger a cascade of rebalances
+                * set **static membership** to limit costs ```group.instance.id```
+                    * with ```session.timeout.ms``` high enough to allow bounce
+        * **incremental cooperative rebalancing**
+            * iterative
+            * no **stop the world**
+            * slower
+    * vertically by adding **stream threads** per machine
+    * horizontally by adding machines with same application (```application.id```)
  * **Reliability**
     * **consumer groups**
         * **fault tolerance** through **rebalancing**
     * **fault tolerance** for stateful operations on application-side
+        * **changelog** topic backs state stores
+            * replay from topic reconstructs state
+        * **standby** replicas for state stores
  * **Maintainability**
     * mature kafka ecosystem
     * deployment agnostic using application resources
@@ -37,6 +54,35 @@ slug: "/cheatsheets/kafka/streams"
     * topologies are **templates**
         * parallelized across **tasks** and **stream threads**
         * **stream threads** ```num.stream.threads```
+ * High Availabilty
+    * **standby** replicas ```metadata.standbyHosts``` can serve stale results
+    * rolling upgrade problem
+        * **standby** replicas trigger relance when node comes back up
+            * possible to use two consumer groups, hot and cold
+            * ```group.initial.rebalance.delay.ms``` broker setting tradeoff
+    * large key spaces -> ```changelog``` size -> long time to replay
+        * prune keys
+            * **tombstones** ```null`` value for key marks no longer of interest
+        * window retention
+            * **windowed stores** multidimensional keys
+            * temporary pruning
+            * ```Materialized.withRetention(duration)```
+        * compaction
+            * **segment** files together comprise topic log
+            * **active segment** log currently open for appending
+            * **inactive segments** may be cleaned
+                * reduces disk spade
+                * reduces records client may need to read
+            * **aggressive compaction** for **topic** may reduce rebuild time
+                * ```Materialized.withLoggingEnabled(topicConfig)```
+                * ```segment.bytes``` smaller files, more granular control over retention
+                * ```segment.ms``` upper bound forcing active log to roll even when not full
+                * ```min.cleanable.dirty.ratio``` lower means more but less efficient cleanings, lower disk space and fewer unneeded records retained
+                * ```max.compaction.log.ms```
+                * ```min.compaction.log.ms```
+
+
+
 
 
 
@@ -52,6 +98,31 @@ slug: "/cheatsheets/kafka/streams"
  * DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG
     * ```LogAndFailExceptionHandler```
     * ```LogAndContinueExceptionHandler```
+ * ```group.instance.id``` **static** consumer group membership
+    * reduces costly rebalances
+    * ```id``` must be **unique** across **cluster**
+        * **not** merely application
+    * set ```session.timeout.ms``` high enough allow time for tear down and restart
+        * but low enough to detect actual failure
+
+## Important
+ * ```NUM_STANDBY_REPLICAS_CONFIG```
+
+## Compaction
+ * aggressive compaction for **topic** reduces state store rebuild time ```Materialized.withLoggingEnabled(topicConfig)```
+    * ```segment.bytes``` smaller files, more granular control over retention
+    * ```segment.ms``` upper bound forcing active log to roll even when not full
+    * ```min.cleanable.dirty.ratio``` lower means more but less efficient cleanings, lower disk space and fewer unneeded records retained
+    * ```max.compaction.log.ms```
+    * ```min.compaction.log.ms```
+
+## Reducing Unnecessary Writes
+
+ * Set both together to du-dep consequtive writes but increase memory, latency
+    * ```cache.max.bytes.buffering``` large caches reduces duplicate writes
+        * shared evenly across all tasks
+    * ```commit.interval.ms``` higher commit reduces duplicate writes
+
 
 # APIs
  * Start
@@ -236,9 +307,28 @@ slug: "/cheatsheets/kafka/streams"
         * high read availability through **stand by*** aka **shadow** replicas
         * **persistent** write to local disk
             * ```STATE_DIR_CONFIG``` default ```/tmp```
+                * **note** ```/tmp``` is unlikely to survive a reboot
+                * **note** disk performance tradeoff
+                * ```.checkpoint``` files store offsets from ```changelog``` topic
+                * ```.lock``` prevents concurrent access **note** consequences for disk sharing
             * limited by disk, not memory, space
             * restored from disk, not rebuilt, potentially quicker recovery time
             * slower
+    * **ephemeral** ```Materialized.as(name).withLoggingDisabled()``` disabled ```changelog```
+        * cannot be replayed from ```changelog``` topic
+    * **In Memory**
+        * **Fixed Sized LRU**
+            * Least Recently Used
+            * ```stores.lruMap```
+ * **fault tolerant** through
+    * **changelog** topic
+        * ```count(Materialized.as(name)```
+        * if **checkpoint** file exists then replay from checkpoint offset
+        * ```Materialized.as(name).withLoggingEnabled(configs)```
+        * use ```kafka-configs.sh``` to update configuration
+    * **standby replicas**
+        * ```NUM_STANDBY_REPLICAS_CONFIG```
+
 
 ### Windowed Stores
  * Support different interactive
@@ -268,3 +358,10 @@ slug: "/cheatsheets/kafka/streams"
  * Reduces message size by including ID for schema.
  * ```schema.registry.url```
  * ```AvroSerdes```
+
+# Monitoring
+
+ * Add ```StateListener``` to instrument transitions to ```rebalancing``` state
+    * ```streams.setStateListener```
+ * Add ```StateRestoreListener``` to instrument state store lifecycle
+    * ```streams.setGlobalStateRestoreListener```
