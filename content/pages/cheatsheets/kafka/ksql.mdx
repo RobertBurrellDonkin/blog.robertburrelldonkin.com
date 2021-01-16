@@ -89,20 +89,27 @@ slug: "/cheatsheets/kafka/ksql"
 ## Clients
  * ```ksqlDB CLI``` interactive ```ksql host:post```
  * ```ksqlDB UI``` (commercial) visualizer, similar to Toad
- *
+
 
 # Interactive Mode
  * **statement-based** replication
     * **command topic** distributes statement to nodes
 
+# REST API
+ * ```POST /query``` <- JSON
 
 # SQL API
+
+## Automation
+ * ```RUN SCRIPT file ;```
+
 ## Configuration
  * ```SET```
     * ```SET 'auto.offset.reset' = 'earliest';```
 
 ## DDL - Data Definition Language
  * ```SHOW```
+    * ```SHOW FUNCTIONS;```
     * ```SHOW TOPICS;```
     * ```SHOW QUERIES;```
         * ```SHOW QUERIES EXTENDED```
@@ -148,9 +155,16 @@ slug: "/cheatsheets/kafka/ksql"
                 * ```CREATE STREAM ... AS SELECT ...```
             * **derived tables** CTAS
                 * ```CREATE TABLE ... AS SELECT ...```
+            * **materialized view** using aggregate query
+                * ```CREATE TABLE ... AS SELECT ... GROUP BY ... EMIT CHANGES```
+                * pseudo columns
+                    * ```WINDOWSTART``` queriable
+                    * ```WINDOWEND``` **not** queriable
+                * **pull query** limited ```SELECT``` syntax
     * ```CREATE TYPE name AS type``` defines reusable custom type
  * ```DESCRIBE <name> ;``` table or stream
     * ```DESCRIBE EXTENDED <name> ;``` more details
+    * ```DESCRIBE FUNCTION <name> ; ```
  * ```DROP```
     * ```DROP TYPE name``` drops a custom type
     * ```DROP CONNECTOR `name` ;```
@@ -189,7 +203,27 @@ slug: "/cheatsheets/kafka/ksql"
         * ```SELECT expression FROM name EMIT CHANGES LIMIT count;``` **push query** with **limit**
     * ```SELECT expression FROM name LEFT JOIN collection ON criteria EMIT CHANGES;``` **push query**
     * ```SELECT expression FROM name WINDOW window EMIT CHANGES;``` **push query**
+        * ```WINDOW TUMBLING (SIZE number SECONDS)```
+        * ```WINDOW HOPPING (SIZE number SECONDS, ADVANCE BY number SECONDS)```
+        * ```WINDOW SESSION (number SECONDS)```
+        * ```WINDOW ...(..., GRACE PERIOD number timeunit)``` allows delay before dropping late events
+            * **default** window retention period
+        * ```WINDOW ...(..., RETENTION number timeunit)``` sets **window retention**
+            * less retention, smaller store, reducing impact of restarts and rebalancing
+            * must be greater than window size plus grace
+            * **stream time** not wallclock
     * ```SELECT expression FROM name GROUP BY grouping EMIT CHANGES;``` **push query**
+        * **aggregation**
+            * ```SELECT COUNT(*) ... GROUP BY ...``` **count**
+                * ```AVG```
+                * ```MAX```
+                * ```MIN```
+                * ```SUM```
+                * ```COUNT_DISTINCT```
+            * ```SELECT LATEST_BY_OFFSET(...) ... GROUP BY ...``` oldest
+            * ```SELECT EARLIEST_BY_OFFSET(...) ... GROUP BY ...``` newest
+            * **only** columns in ```GROUP BY``` can be included in projection
+            * underlying topic keyed by columns grouped by
     * ```SELECT expression FROM name HAVING having EMIT CHANGES;``` **push query**
     * ```SELECT expression FROM name WHERE where LIKE 'likable%' EMIT CHANGES;``` **push query**
         * ```%``` zero or more characters
@@ -208,6 +242,33 @@ slug: "/cheatsheets/kafka/ksql"
  * ```PRINT```
     * ```PRINT `name` FROM BEGINNING ;```
 
+
+## Joins
+ * types
+    * ```INNER JOIN``` share key
+    * ```FULL JOIN``` null when no matching key
+    * ```LEFT JOIN``` null when no matching right key for left
+ * subjects
+    * stream to stream
+        * **must** be windowed
+    * stream to table
+        * ```FULL JOIN``` **not supported**
+    * table to table
+    * tables
+        * **must** be joined on ```PRIMARY KEY```
+ * constraints
+    * same data type
+        * ```SELECT ... INNER JOIN ... ON CAST(... AS ...)=``` use an expression to convert to same data type
+    * same partition count and strategy
+        * workaround by creating new table or stream with compatible partitioning
+ * **persistent joins**
+    * ```CREATE STREAM ... AS SELECT ... INNER JOIN ... EMIT CHANGES ;"
+    * ```CREATE TABLE ... AS SELECT ... LEFT JOIN ...  ;"
+ * windowing
+    * ```TIMESTAMP``` defined on ```CREATE```
+    * ```WITHIN``` **sliding window** based on difference in timestamps
+        * ```SELECT ... INNER JOIN ... WITHIN 2 MINUTES ... ;```
+
 ## Key Data Types
  * ```ARRAY```
  * ```BOOLEAN```
@@ -220,3 +281,12 @@ slug: "/cheatsheets/kafka/ksql"
  * ```STRUCT``` structured collection of fields
  * Custom Types
     * ```CREATE TYPE name AS type```
+
+## Functions
+ * Custom functions
+    * ```kqsl.extension.dir```
+
+
+
+# Monitoring
+ * When **late** events are skipped during windowing, this is write to server logs
