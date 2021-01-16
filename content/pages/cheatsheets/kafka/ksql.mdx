@@ -1,5 +1,5 @@
 ---
-title: Cheatsheet – Apache Kafka – KSQL
+title: Cheatsheet – Apache Kafka – ksqlDB
 slug: "/cheatsheets/kafka/ksql"
 ---
 
@@ -30,17 +30,94 @@ slug: "/cheatsheets/kafka/ksql"
     * Functions and operators
     * eventually consistent
 
+# Architecture
+ * **clients** and **servers**
+
+## Servers
+ * Cluster independent of brokers
+    * scale out, scale in
+ * ```kqsl.service.id```
+    * same id, same consumer group
+    * consumer group mechanism distributes workloads
+ * SQL Engine
+    * converts SQL into streams topology then runs
+ * REST interface
+    * for SQL engine
+    * optional depending on **deployment mode**
+    * required to run interactively
+ * Deployment Modes
+    * ```Interactive``` **default**
+        * submitted through ```command topic```
+    * ```Headless```
+        * ```queries.file``` points to queries executed on start
+ * ```ksql-start-server ksql-server.properties```
+
+### Kafka Connect
+ * Modes
+    * **Embedded**
+        * ```ksql.connect.worker.config``` path to configuration properties
+        * co-located
+        * workers sames as ksqlDB servers
+        * reasons
+            * maintain scale and availability together
+            * moderate throughput expected
+            * simplify architecture
+            * share memory and compute resources
+        * need to restart after installing plugins
+    * **External**
+        * ```ksql.connect.url```
+        * do need to co-locate
+        * sink/source connectors are deployed to external connect cluster
+        * reasons
+            * high throughput expected
+            * separate availability and scaling concerns
+            * reuse cluster alraedy deployed
+
+### Properties
+
+#### Key
+ * ```listeners``` REST API endpoint
+ * ```bootstrap.servers``` Kafka cluster
+
+## Clients
+ * ```ksqlDB CLI``` interactive ```ksql host:post```
+ * ```ksqlDB UI``` (commercial) visualizer, similar to Toad
+ *
+
 # Interactive Mode
  * **statement-based** replication
     * **command topic** distributes statement to nodes
 
 
-# API
+# SQL API
+## Configuration
+ * ```SET```
+    * ```SET 'auto.offset.reset' = 'earliest';```
+
 ## DDL - Data Definition Language
+ * ```SHOW```
+    * ```SHOW TOPICS;```
+ * ```CREATE```
+    * ```CREATE STREAM name (...) WITH (...)```
 
 ### Connector Integration
+ * options for external or internal Kafka Connect cluster
  * ```CREATE SOURCE CONNECTOR `name` with (props);```
-    * options for external or internal Kafka Connect cluster
+ * ```CREATE SINK CONNECTOR `name` with (props);```
+ * ```LIST CONNECTORS ;```
+    * ```LIST SINK CONNECTORS ;```
+    * ```LIST SOURCE CONNECTORS ;```
+ * ```SHOW CONNECTORS ;```
+    * ```SHOW SINK CONNECTORS ;```
+    * ```SHOW SOURCE CONNECTORS ;```
+ * ```DESCRIBE CONNECTOR `name` ;``` **fault diagnosis**
+ * ```DROP CONNECTOR `name` ;```
 
 ## DML - Data Manipulation Language
+ * ```INSERT INTO name (names) VALUES (values) ```
+ * ```SELECT```
+    * ```SELECT expression FROM name EMIT CHANGES;``` **push query**
+        * ```SELECT expression FROM name EMIT CHANGES LIMIT count;``` **push query** with **limit**
+ * ```PRINT```
+    * ```PRINT `name` FROM BEGINNING ;```
 

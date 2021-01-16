@@ -1,0 +1,42 @@
+---
+title: Cheatsheet – Apache Kafka – Kafka Connect
+slug: "/cheatsheets/kafka/connect"
+---
+
+# Key Concepts
+ * Connectors
+    * **Source**
+    * **Sink**
+ * **Tasks** unit of work
+ * **Workers** execution processes
+    * distribution
+    * fault tolerance
+ * **Connect cluster**
+ * **Converter** serdes
+
+# Properties
+## Key
+ * ```bootstrap.servers```
+ * ```group.id``` identifies cluster
+ * ```key.converter```
+    * ```key.converter.schema.resgistry.url``` for **avro** **protobuf** etc
+ * ```value.converter```
+    * ```value.converter.schema.resgistry.url``` for **avro** **protobuf** etc
+ * ```errors.tolerance```
+ * ```plugin.path```
+ * ```config.storage.topic```
+ * ```offset.storage.topic```
+ * ```status.storage.topic```
+
+# Tools
+## CLI
+ * ```confluent-hub install``` connector
+
+# REST API
+ * ```GET /connectors```
+ * ```GET /connectors/<name>```
+ * ```GET /connectors/<name>/tasks```
+ * ```GET /connectors/<name>/tasks/<id>/status```
+ * ```POST /connectors/<name>/tasks/<id>/restart```
+
+
