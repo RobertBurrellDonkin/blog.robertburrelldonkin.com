@@ -11,6 +11,13 @@ slug: "/cheatsheets/kafka/ksql"
 # Key Concepts
  * event streaming relational data source built on Kafka Streams
  * ```KTables``` and ```KStreams``` modelled as **collections**
+    * Tables
+        * backed by compacted topics
+        * ```null``` tombstones are ignored
+    * Streams
+        * ```null``` values visible
+    * **source collections** directly from topics
+    * **derived collections** from other collections
  * **SQL** constructs and syntax widely included
  * **push queries** emit events
      * compiled into Kafka Streams applications suitable for microservices
@@ -97,8 +104,67 @@ slug: "/cheatsheets/kafka/ksql"
 ## DDL - Data Definition Language
  * ```SHOW```
     * ```SHOW TOPICS;```
+    * ```SHOW QUERIES;```
+        * ```SHOW QUERIES EXTENDED```
+    * ```SHOW TYPES ;``` shows in detail custom types defined
+    * ```SHOW CONNECTORS ;```
+        * ```SHOW SINK CONNECTORS ;```
+        * ```SHOW SOURCE CONNECTORS ;```
+    * ```SHOW STREAMS ;```
+        * ```SHOW STREAMS EXTENDED ;``` more details useful for **diagnostics**
+    * ```SHOW TABLES ;```
+        * ```SHOW TABLES EXTENDED ;``` more details useful for **diagnostics**
+ * ```LIST```
+    * ```LIST TYPES ;``` lists custom types defined
+    * ```LIST CONNECTORS ;```
+        * ```LIST SINK CONNECTORS ;```
+        * ```LIST SOURCE CONNECTORS ;```
+    * ```LIST STREAMS ;```
+    * ```LIST TABLES ;```
+    * ```LIST QUERIES;```
  * ```CREATE```
-    * ```CREATE STREAM name (...) WITH (...)```
+    * **collections**
+        * cannot create a stream with the same name as a table or vice versa
+        * key can be read into a column identified by
+            * ```PRIMARY KEY``` for tables
+            * ```KEY``` for streams
+        * ```CREATE STREAM name (...) WITH (...)```
+            * ```KEY``` to identify key column
+        * ```CREATE TABLE name (...) WITH (...)```
+            * ```PRIMARY KEY``` to identify key column
+        * when schema is stored in registry, types are optional
+        * ```WITH```
+            * **required** **KAFKA_TOPIC** **VALUE_FORMAT**
+            * ```with(KAFKA_TOPIC='name'...)```
+            * ```with(...VALUE_FORMAT='format'...)```
+            * ```with(...PARTITIONS=number...)```
+            * ```with(...REPLICAS=number...)```
+            * ```with(...TIMESTAMP='column'...)``` defaults to metadata
+            * ```with(...TIMESTAMP_FORMAT='format'...)``` not needed when ```BIGINT```
+        * ```IF NOT EXISTS``` optional ```CREATE STREAM IF NOT EXISTS name (...) WITH (...)```
+        * **derived collections**
+            * ```CREATE ... AS SELECT ...```
+            * **derived streams** CSAS
+                * ```CREATE STREAM ... AS SELECT ...```
+            * **derived tables** CTAS
+                * ```CREATE TABLE ... AS SELECT ...```
+    * ```CREATE TYPE name AS type``` defines reusable custom type
+ * ```DESCRIBE <name> ;``` table or stream
+    * ```DESCRIBE EXTENDED <name> ;``` more details
+ * ```DROP```
+    * ```DROP TYPE name``` drops a custom type
+    * ```DROP CONNECTOR `name` ;```
+    * ```DROP STREAM `name` ;```
+        * ```DROP STREAM IF EXISTS `name` ;```
+        * ```DROP STREAM IF EXISTS `name` DELETE TOPIC;```
+    * ```DROP TABLE `name` ;```
+        * ```DROP TABLE IF EXISTS `name` ;```
+ * ```EXPLAIN```
+    * ```EXPLAIN query_id```
+    * ```EXPLAIN statement```
+ * ```TERMINATE```
+    * ```TERMINATE query_id```
+    * ```TERMIANTE ALL```
 
 ### Connector Integration
  * options for external or internal Kafka Connect cluster
@@ -115,9 +181,42 @@ slug: "/cheatsheets/kafka/ksql"
 
 ## DML - Data Manipulation Language
  * ```INSERT INTO name (names) VALUES (values) ```
+    * pseudo-columns
+        * ```ROWKEY```
+        * ```ROWTIME```
  * ```SELECT```
     * ```SELECT expression FROM name EMIT CHANGES;``` **push query**
         * ```SELECT expression FROM name EMIT CHANGES LIMIT count;``` **push query** with **limit**
+    * ```SELECT expression FROM name LEFT JOIN collection ON criteria EMIT CHANGES;``` **push query**
+    * ```SELECT expression FROM name WINDOW window EMIT CHANGES;``` **push query**
+    * ```SELECT expression FROM name GROUP BY grouping EMIT CHANGES;``` **push query**
+    * ```SELECT expression FROM name HAVING having EMIT CHANGES;``` **push query**
+    * ```SELECT expression FROM name WHERE where LIKE 'likable%' EMIT CHANGES;``` **push query**
+        * ```%``` zero or more characters
+    * ```WHERE```
+        * ```NOT```
+        * ```AND```
+        * ```OR```
+        * ```BETWEEN```
+    * **flatten** ```->``` structs
+    * ```SELECT COALESCE(...)```  first not null in list
+    * ```SELECT IFNULL(...)```  set value when null
+    * ```SELECT CASE WHEN condition THEN result ELSE fallback```
+    * **persistence queries** write results to topic
+        * use **derived collection**
+            * ```CREATE ... AS SELECT ...```
  * ```PRINT```
     * ```PRINT `name` FROM BEGINNING ;```
 
+## Key Data Types
+ * ```ARRAY```
+ * ```BOOLEAN```
+ * ```INT```
+ * ```BIGINT```
+ * ```DOUBLE```
+ * ```DECIMAL(scale,precision)```
+ * ```MAP```
+ * ```VARCHAR``` aka ```STRING```
+ * ```STRUCT``` structured collection of fields
+ * Custom Types
+    * ```CREATE TYPE name AS type```
