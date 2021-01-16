@@ -1,0 +1,46 @@
+---
+title: Cheatsheet – Apache Kafka – KSQL
+slug: "/cheatsheets/kafka/ksql"
+---
+
+# History
+ * KSQL -> ksqlDB
+    * (push) queries -> push and pull queries
+    * DIY Connectors -> Connector Integration
+
+# Key Concepts
+ * event streaming relational data source built on Kafka Streams
+ * ```KTables``` and ```KStreams``` modelled as **collections**
+ * **SQL** constructs and syntax widely included
+ * **push queries** emit events
+     * compiled into Kafka Streams applications suitable for microservices
+ * **Materialized views** with **pull queries** static snapshot similar to RDBMS
+ * **Connector** sinks and sources
+    * ETL pipeline use cases
+    * **Kafka Connect**
+ * Feels like SQL
+    * Specialized SQL dialect, not ANSI with enhancements
+        * DDL
+            * enhanced integration with schema registries
+            * scheme evolution
+        * DML
+            * simple queries but good integration with streams
+    * Interactive exploratory interface
+    * Network clients
+    * Functions and operators
+    * eventually consistent
+
+# Interactive Mode
+ * **statement-based** replication
+    * **command topic** distributes statement to nodes
+
+
+# API
+## DDL - Data Definition Language
+
+### Connector Integration
+ * ```CREATE SOURCE CONNECTOR `name` with (props);```
+    * options for external or internal Kafka Connect cluster
+
+## DML - Data Manipulation Language
+
