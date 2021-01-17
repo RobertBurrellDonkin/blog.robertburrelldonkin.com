@@ -1,0 +1,127 @@
+---
+title: Cheatsheet – Apache Kafka – Security
+slug: "/cheatsheets/kafka/security"
+---
+
+# Key Concepts
+ * **Clients*** internal on **LAN*** and external
+    * ```Producer```
+    * ```Consumer```
+ * **Brokers**
+    * ```Leader```
+    * ```Followers```
+ * **Zookeeper**
+
+# Key Qualities
+ * **Authentication**
+ * **Authorization**
+ * **Encryption**
+ * **Auditing**
+ * **Quotas**
+
+# Key Considerations
+  * Authenticity
+    * **Client** authenticity
+    * **Broker** authenticity
+  * Auditability
+  * Availability for all resources to all actors
+    * **DDOS**
+    * out of control clients
+  * Data
+    * **privacy**
+    * **integrity**
+    * **access control**
+  * Membership
+    * **consumer group** access control
+
+# Protocols
+
+## Endpoints
+ * **TLS**
+    * authentication
+    * encryption
+    * zero-copy **not** supported for **TLS**
+    * significant additional overhead
+    * considerations
+        * renegotiation not allowed
+        * TLSv1.1 not allowed
+        * restrict ciphers
+        * stores
+            * file permissions
+            * short lived keys
+            * certificate revocation
+        * TLS expensive
+            * restrict access (limits and quotas) to make DOS more difficult
+            * ```connection.failed.authentication.delay.ms```
+ * **SASL**
+    * authentication
+ * Supported
+    * Transport Layers
+        * **SSL**
+        * **PLAINTEXT**
+    * Authentication layers
+        * **SSL**
+        * **SASL**
+    * options
+        * ```PLAINTEXT```
+        * ```SSL```
+        * ```SASL_PLAINTEXT```
+        * ```SASL_SSL```
+    * broker-broker
+        * ```inter.broker.lister.name``` client
+        * ```server.inter.broker.lister.name``` server
+    * client-broker
+        * ```listerners```
+        * ```advertised.listeners```
+        * ```listener.security.protocol.map```
+        * ```security.protocol```
+
+## Authentication
+ * ```KafkaPrincipal``` client identity
+    * **authorization**
+    * **quotas**
+    * ```principal.builder.class``` broker-side custo
+    * ```User:ANONYMOUS``` indicates unauthenticated
+
+# Configuration
+## TLS
+ * encryption ```SSL``` ```SSL_SASL```
+  * broker
+    * key store with
+        * private key
+        * certificate
+    * trust store
+        * CA certificate or signed broker cert
+    * cert
+        * with hostname in
+            * ```Subject Access Name``` **SAN** or
+            * ```Common Name``` **CN**
+        * wildcards ease administration
+        * **default** clients check hostname
+            * tradeoff between maintability and security
+  * client authentication ```ssl.client.auth```
+    * ```ssl.client.auth=requested``` allows anonymous clients
+    * ```ssl.client.auth=required```
+    * client
+        * key store
+            * ```ssl.principal.mapping.rules```
+                * **default** ```Distinguished Name``` **DN**
+    * broker
+        * trust store with either
+            * client cert
+            * or signing CA
+  * inter-broker
+    * broker trust stores need certs for other brokers in cluster
+  * trust store
+    * ```ssl.truststore.location```
+    * ```ssl.truststore.type```
+    * ```ssl.truststore.password```
+    * may be omitted when keys signed by authority trusted by Java
+  * key store
+    * ```ssl.keystore.location```
+    * ```ssl.keystore.type```
+    * ```ssl.keystore.password```
+    * ```ssl.key.password```
+  * update stores before certificates expire
+    * Admin API
+    * ```kafka-config```
