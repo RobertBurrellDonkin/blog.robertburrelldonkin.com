@@ -61,7 +61,33 @@ slug: "/cheatsheets/kafka/security"
         * **PLAINTEXT**
     * Authentication layers
         * **SSL**
-        * **SASL**
+        * **SASL** out of the box
+            * ```sasl.jaas.config``` **JAAS** configures login module and options
+                * **broker** prefixes with listener and mechanism
+                    * eg ```listener.name.external.gssapi.sasl.jaas.config```
+                * recommended over setting JVM property ```java.security.auth.login.config```, more granular control
+            * ```sasl.enabled.mechanisms``` one or more
+                * ```GSSAPI``` Keberos in particular Active Directory
+                * ```PLAIN``` user/password external store
+                    * Configured using **JAAS**
+                * ```SCRAM``` no store needed
+                    * **S**alted **C**hallenge **R**esponse **M**echanism
+                    * requires secure ZooKeeper
+                    * cached, notified
+                    * ```SCRAM-SHA-256```
+                    * ```SCRAM-SHA-512```
+                    * ```kafka-configs```
+                    * On user deletion, existing connection remain
+                        * consider reauthentication interval
+                * ```OAUTHBEARER``` OAuth with custom callbacks
+                    * built-in uses JWT, not recommended for production
+                    * use TLS to prevent evesdropping on  tokens
+                    * set reauthentication interval to prevent connections overliving tokens
+            * **Keberos V5**
+                * clock synchronization
+                * secure DNS
+                * random broker passwords
+                * protect keytabs
     * options
         * ```PLAINTEXT```
         * ```SSL```
@@ -82,6 +108,33 @@ slug: "/cheatsheets/kafka/security"
     * **quotas**
     * ```principal.builder.class``` broker-side custo
     * ```User:ANONYMOUS``` indicates unauthenticated
+ * Delegation tokens
+    * ```kafka-delegation-tokens```
+    * An authenticated client can create delegation token
+    * Distributed to workers to allow direct access to brokers
+    * ```SASL/SCRAM``` at least one mechanism must be configured on brokers
+    * ```delegration.token.master.key``` all brokers must have same
+ * Reauthentication
+    *```SASL``` **only**
+        * ```TLS``` renegotiation has known vulnerabilities
+            * Use ```Deny ACLs``` to disable access instead
+    * ```connections.max.reauth.ms```
+        * limiting connection lifetime to token validity
+        * enforce password rotation
+        * checks revoked or expired credentials
+
+## Encryption
+ * End-to-end encryption
+    * Custom provider plugins for clients
+        * **Serdes**
+        * Typically ```AES``` from a ```KMS```
+        * Integrity by signing payload
+        * SALT in headers
+        * key rotation poses questions about compaction and retention
+            * one solution would be re-encryption
+        * compression should be turned off
+            * compression after encryption not effective
+            * compression before encryption opens doors to compression attacks
 
 # Configuration
 ## TLS
@@ -125,3 +178,80 @@ slug: "/cheatsheets/kafka/security"
   * update stores before certificates expire
     * Admin API
     * ```kafka-config```
+
+# Operations
+ * Rolling phased updates
+    * Add, stabilize, remove
+
+# Authorization
+ * ```authorizer.class.name```
+    * ```AclAuthorizer``` **default**
+        * ```super.users```
+            * revocation requires restart
+            * access unrestricted by ACLS
+        * ```allow.everyone.if.no.acl.found```
+            * useful during cluster set up
+        * access control lists
+        * stored in ZooKeeper
+            * ZooKeeper should be secured
+        * cached in memory
+        * authorized action if there is at least one **allow** and no **deny** ACLs
+        * ```kafka-acls```
+        * ACL Binding
+            * Resource Type
+                * ```Cluster```
+                * ```Topic```
+                * ```Group```
+                * ```TransactionalId```
+                * ```DelegrationToken```
+            * Pattern Type
+                * ```Literal```
+                * ```Prefixed```
+            * Resource Name may include wildcard
+            * Operation
+                * ```Describe``` implicitly granted by ```Read```, ```Write```, ```Alter```, ```Delete```
+                * ```Create```
+                * ```Delete```
+                * ```Alter```
+                * ```Read```
+                * ```Write```
+                * ```DescribeConfig``` implicitly granted by ```AlterConfigs```
+                * ```AlterConfigs```
+            * Permission type
+                * ```Allow```
+                * ```Deny``` **higher precedence**
+            * Principal
+            * Host
+                * client source address
+
+# Auditing
+
+ * ```log4j.properties```
+    * ```kafka.authorizer.logger``` **authorization**
+        * ```INFO``` **denied**
+        * ```DEBUG``` **granted**
+    * ```kafka.request.logger``` **requests**
+        * ```DEBUG``` includes **principal**
+ * use headers
+
+# ZooKeeper
+ * Authorization
+    * ```SASL```
+        * ```GSSAPI``` configured using **JAAS** but brokers need single principal
+            * ```kerberos.removeHostFromPrincipal```
+            * ```kerberos.removeRealmFromPrincipal```
+    * TLS
+        * ZooKeeper
+            * key store
+            * trust store (client authentication)
+        * Broker ```zookeeper.ssl.client.enable```
+            * trust store to validate ZooKeeper certs
+                * ```zookeeper.truststore.location```
+                * ```zookeeper.truststore.password```
+                * ```zookeeper.truststore.type```
+            * key store (client authentication)
+                * ```zookeeper.keystore.location```
+                * ```zookeeper.keystore.password```
+                * ```zookeeper.keystore.type```
+ * authorization
+    * ```zookeeper.set.acl``` 
