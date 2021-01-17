@@ -1,0 +1,85 @@
+---
+title: Cheatsheet – Apache Kafka – Broker
+slug: "/cheatsheets/kafka/broker"
+---
+
+# Monitoring
+
+## Key Metrics
+ * ```ActiveControllerCount``` should be **1** (or **0***) **2** (or more) troubles
+ * ```EventQueueEvent``` **controller**
+    * continuously increases or fails to drop then controller may be stuck
+ * ```RequestHandlerIdleRatio``` high impact on this pool as load increases
+ * ```AllTopicsBytesIn``` overall growth trend
+    * with ```AllTopicsMessagesIn``` gives average message size
+ * ```AllTopicsBytesOut``` overall growth trend
+    * includes replicas
+ * ```PartitionCount``` useful when topic creation is enabled
+ * ```LeaderCount``` should be evenly distributed
+    * indicates when a preferred leader election may be needed
+ * ```OfflinePartitionCount``` **critical**
+ * **JVM**
+    * Garbage Collection
+    * file descriptors
+        * ```OpenFileDescriptorCount```
+        * ```MaxFileDescriptorCount```
+
+## Key Logging
+ * factor out
+    * ```kafka.controller.``` **controller** ```INFO```
+    * ```kafka.server.ClientQuotaManager``` **quotas** ```INFO```
+ * compaction
+    * ```kafka.log.LogCleaner``` **DEBUG**
+    * ```kafka.log.LogCleanerManager``` **DEBUG**
+    * ```kafka.log.Cleaner``` **DEBUG**
+
+## Troubleshooting
+
+ * Cluster issues
+    * single broker problems
+        * Show up as outliers in metrics
+        * So collect individual metrics and compute outliers
+        * Especially ```OS``` metrics particularly hardware
+            * slow disks
+            * saturated IO
+        * Load imbalances
+            * hot partitions
+            * run **preferred leader election** first
+    * cluster overload
+        * load balanced but many brokers show
+            * low request handler idle pool ratio
+            * evelated latency for requests
+    * controller problems
+        * harder to diagnose
+            * broker metadata out of sync
+            * topic control command problems
+            * replicas unexpectedly offline
+        * monitor
+            * active controller count
+            * controller queue size
+    * under replicated partitions
+        * threaten fault tolerance
+        * expected to be non-zero on occasion
+            * false positives as a solo alerting metric
+        * steady
+            * likely indicates one or more broker fallen out of the cluster
+                * check broker and connectivity for problems
+        * ```kafka-topics``` **describe**
+        * cluster level problems
+            * resources
+                * OS metrics
+                    * CPU
+                    * network
+                    * disk
+            * imbalance
+                * metrics **per broker** and check for evenness
+                    * partition count
+                    * leader partition count
+                    * all topics message in rate
+                    * all topics bytes in rate
+                    * all topics bytes out rate
+                * fix using ```kafka-reassign-partitions``` tool
+                * or ```kafka-assigner```
+        * run SMART tools regularly
+
+
