@@ -216,3 +216,22 @@ slug: "/cheatsheets/kafka/producer"
     * Client Admin API
  * Important to plan and monitor capacity on brokers since consistently over-quota clients will begin to die
 
+# Monitoring
+
+ * **JMX**
+    * ```record-error-rate```
+    * ```record-retry-rate``` some reties expected, retries impact performance
+    * ```request-latency-avg```
+    * ```outgoing-byte-rate```
+    * ```record-send-rate```
+    * ```request-rate```
+    * ```request-size-avg```
+    * ```batch-size-avg```
+    * ```records-per-second-avg```
+    * ```record-queue-time-avg``` time taken between production and sending to broker, helpful for tuning
+    * ```producer-throttle-time-avg```
+    * per broker
+        * ```request-latency-avg``` useful for spotting troubles with a particular broker
+        * others useful in troubleshooting
+    * per topic
+        * useful in troubleshooting

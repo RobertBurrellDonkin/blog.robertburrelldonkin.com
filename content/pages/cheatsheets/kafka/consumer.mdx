@@ -189,3 +189,22 @@ slug: "/cheatsheets/kafka/consumer"
     * ```value.deserializer```
 
 
+# Monitoring
+
+ * **JMX**
+    *```FetchManager```
+        * ```fetch-latency-avg``` natural variation expected
+        * ```bytes-consumed-rate```
+        * ```records-consumed-rate```
+        * ```fetch-throttle-time-avg``` indicates quotas
+    * per topic and per broker
+        * useful for troubleshooting
+    * ```ConsumerCoordinator```
+        * ```sync-rate```
+        * ```sync-time-avg```
+        * ```commit-latency-avg```
+        * ```assigned-partitions```
+
+## Consumer Lag
+ * **Burrow** open source tool
+ * ```records-lags-max``` gives a partial view, better to use external tool
