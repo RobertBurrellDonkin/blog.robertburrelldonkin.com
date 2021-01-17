@@ -89,6 +89,12 @@ slug: "/cheatsheets/kafka/streams"
 # Properties
 
 ## Required
+ * ```application.id```
+    * used as prefix
+    * used as consumer group
+    * default **client.id**
+    * subdirectory for persistent stores
+ * ```bootstrap.servers```
 
 ## Key
  * ```num.stream.threads```
@@ -106,7 +112,37 @@ slug: "/cheatsheets/kafka/streams"
         * but low enough to detect actual failure
 
 ## Important
- * ```NUM_STANDBY_REPLICAS_CONFIG```
+ * ```num.standby.replicas```
+ * ```processing.gaurantee```
+    * ```at_least_once``` under some fault conditions messages may be redelivered
+    * ```exactly_once``` more lag, less throughput
+
+## Notable
+ * ```acceptable.recovery.lag``` number of unread records in input partition for task to be considered **warm** (ready)
+    * whilst recovering state, may be wise to set this parameter
+ * ```cache.max.bytes.buffering``` **record cache**
+    * setting above zero enables cache
+        * effectively rate limit application by de-duplication
+ * ```default.deserialization.exception.handler```
+ * ```default.production.exception.handler``` eg message size too large
+    * **default** fail and shutdown
+ * ```default.timestamp.extractor```
+ * ```default.key.serde```
+ * ```default.value.serde```
+ * ```max.task.idle.ms``` maximum buffer fill wait time
+    * higher values add latency but reduce out-of-order messages for multiple input operations
+        * **joins** in particular
+ * ```max.warmup.replicas```
+    * in addition to ```num.standby.replicas```
+ * ```metrics.recording.level```
+ * ```num.standby.replicas``` for each state store
+ * ```num.stream.threads```
+    * increasing count increases CPU util up to cores available
+ * ```replication.factor``` internal topics
+    * ```changelog```
+    * ```repartition```
+ * ```state.dir```
+ * ```topology.optimization``` default **disabled**
 
 ## Compaction
  * aggressive compaction for **topic** reduces state store rebuild time ```Materialized.withLoggingEnabled(topicConfig)```
@@ -123,6 +159,19 @@ slug: "/cheatsheets/kafka/streams"
         * shared evenly across all tasks
     * ```commit.interval.ms``` higher commit reduces duplicate writes
 
+## Record Cache
+ * ```num.stream.threads``` set stream threads
+    * each stream thread allocated **even** share of total cache size
+ * **per stream** thread cache size important for throughput
+    * internal
+    * downstream
+    * **record cache** space allows de-duplication of values in nearby offsets
+
+## Configure Specific Consumers
+ * Use prefixes
+    * ```main.consumer``` for default consumer
+    * ```restore.consumer``` reads changelog to recover state stores
+    * ```global.consumer``` GlobalKTables
 
 # APIs
  * Start
@@ -146,6 +195,7 @@ slug: "/cheatsheets/kafka/streams"
                 * ```WALL_CLOCK_TIME``` local time on processor
         * fine grained control over downstream dispatch
         * granular access to state stores
+            * **punctators**
     * no table or views but ```processors``
  * Hybrid Operations
     * ```processor``` terminates DSL chain with ```Processor``` from low level API
@@ -376,9 +426,54 @@ slug: "/cheatsheets/kafka/streams"
  * ```schema.registry.url```
  * ```AvroSerdes```
 
-# Monitoring
+# Testing
+ * ```kafka-stream-test-utils```
+    * fake runtime
+    * test helpers
+    * mocks
+    * **Processor API**
+        * ```MockProcessorContext```
+    * topology test driver
+    * ```JMH``` microbenchmarking
+        * useful for discovering when a new step introduces significant new costs
+        * baseline only
+        * limited utility in lower bounding production latency
+    * ```kafka-producer-perf-test```
+        * load and stress test
+        * useful for tuning client characteristics including streams
+    * ```kafka-consumer-perf-test``` useful for assessing sink throughput
 
+# Monitoring
+ * ```metrics.recording.level```
  * Add ```StateListener``` to instrument transitions to ```rebalancing``` state
     * ```streams.setStateListener```
  * Add ```StateRestoreListener``` to instrument state store lifecycle
     * ```streams.setGlobalStateRestoreListener```
+ * **JMX** instrumentation
+     * Kafka cluster eg ```kafka_exporter``` -> prometheus
+      * under replicated partitions
+      * consumer lag
+      * offset advancement
+      * topic throughput
+      * in sync replicas
+      * poll time
+      * process latency
+      * production and consumption rates
+     * ```JConsole``` for development
+     * Streams and ksql
+      * ```-javaagent:``` jmx agent
+     * **Logs**
+     * Total log rate
+     * Error log rate
+
+# Operations
+## Reset
+ * ```kafka-streams-application-reset``` **reset tool**
+    * **does not** reset application state
+    * update consumer offsets
+    * skips to end of intermediate topics
+    * Deletes **changelog** and **repatition** topics
+## Rate Limiting
+ * Using **record cache**
+    * rate of production limited by per stream thread cache size
+    * **record cache** space allows de-duplication of values in nearby offsets

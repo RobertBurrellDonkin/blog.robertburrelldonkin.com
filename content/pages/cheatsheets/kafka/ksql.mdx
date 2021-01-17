@@ -286,7 +286,45 @@ slug: "/cheatsheets/kafka/ksql"
  * Custom functions
     * ```kqsl.extension.dir```
 
+# Testing
 
+ * ```ksql-test-runner``` input -> **SQL** -> output end-to-end
+    * use container
+
+# Deployment
+ * Options
 
 # Monitoring
- * When **late** events are skipped during windowing, this is write to server logs
+ * **late** events skipped during windowing are written to server logs
+ * **JMX** instrumentation
+    * Kafka cluster eg ```kafka_exporter``` -> prometheus
+        * under replicated partitions
+        * consumer lag
+        * offset advancement
+        * topic throughput
+        * in sync replicas
+        * poll time
+        * process latency
+        * production and consumption rates
+    * ```JConsole``` for development
+    * Streams and ksql
+        * ```-javaagent:``` jmx agent
+ * **Logs**
+    * Total log rate
+    * Error log rate
+
+
+# Operations
+## Reset
+ * **Resetting** a ksql application is risky
+ * Use ```kafka-consumer-groups``` to identify the correct consumer group
+ * ```kafka-streams-application-reset``` **reset tool**
+  * **does not** reset application state
+  * update consumer offsets
+  * skips to end of intermediate topics
+  * Deletes **changelog** and **repatition** topics
+
+## Rate Limiting
+ * Using **record cache**
+    * rate of production limited by per stream thread cache size
+    * **record cache** space allows de-duplication of values in nearby offsets
