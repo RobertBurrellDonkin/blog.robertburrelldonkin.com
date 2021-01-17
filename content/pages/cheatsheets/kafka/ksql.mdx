@@ -328,3 +328,35 @@ slug: "/cheatsheets/kafka/ksql"
  * Using **record cache**
     * rate of production limited by per stream thread cache size
     * **record cache** space allows de-duplication of values in nearby offsets
+
+# Properties
+
+## Kafka Streams and Kafka Client
+ * available
+ * recommended to prefix ```ksql.streams```
+
+## Kafka Connect
+ * available
+
+## Required
+ * ```ksql.service.id```
+ * ```ksql.streams.bootstrap.servers```
+
+## Notable
+ * ```ksql.fail.on.deserialization``` default **false**
+ * ```ksql.fail.production.error``` default **true**
+ * ```ksql.schema.registry.url``` not required for plain formats
+ * ```ksql.internal.topic.replicas``` default **1**
+    * for fault tolerance set to **2** or more
+ * ```ksql.query.pull.enable.standby.read``` requires standby replicas ```ksql.streams.num.standby.replicas```
+    * for high availability set to **true**
+ * ```ksql.query.pull.max.allowed.offset.lag``` requires ```ksql.lag.reporting```
+    * active and standby tasks
+ * ```ksql.query.persistent.active.limit``` **interactive mode**
+ * ```ksql.queries.file``` **headless mode**
+ * ```listeners``` REST API endpoint
+    * defaults to **8088**
+ * ```ksql.internal.listener``` cluster communication endpoint
+    * defaults to ```listeners```
+ * ```ksql.advertized.listener```
+ * ```ksql.metrics.tags.custom```
