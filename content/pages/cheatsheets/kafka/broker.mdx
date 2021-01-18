@@ -81,5 +81,12 @@ slug: "/cheatsheets/kafka/broker"
                 * fix using ```kafka-reassign-partitions``` tool
                 * or ```kafka-assigner```
         * run SMART tools regularly
+ * TLS
+    * performance
+        * on Linux, ```NativePRNG``` uses a global lock
+            * consider setting ```ssl.secure.random.implementation=SHA1PRNG```
+                * non-blocking
+                * good performance under heavy load
+    * ```openssl s_client```
 
 

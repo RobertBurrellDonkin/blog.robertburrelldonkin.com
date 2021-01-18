@@ -255,3 +255,29 @@ slug: "/cheatsheets/kafka/security"
                 * ```zookeeper.keystore.type```
  * authorization
     * ```zookeeper.set.acl```
+ * ```kafka-acls```
+    * ```--add```
+    * ```--remove```
+    * ```--list```
+    * authorizer **not allowed** with broker
+        * ```--authorizer``` authorizer **class** name
+        * ```--authorizer-properties``` key=value
+    * brokers **not allowed** with authorizer
+        * ```--bootstrap-server```
+        * ```--command-config```
+    * resource
+        * ```--cluster```
+        * ```--topic```
+        * ```--group```
+        * ```--transaction-id```
+        * ```--delegation-token```
+    * allow
+        * ```--allow-principal```
+        * ```--allow-host```
+    * deny
+        * ```--deny-principal```
+        * ```--deny-host```
+    * ```--operation```
+        * ```--producer``` convenience
+        * ```--consuemr``` convenience
+    * ```--force``` convenience
