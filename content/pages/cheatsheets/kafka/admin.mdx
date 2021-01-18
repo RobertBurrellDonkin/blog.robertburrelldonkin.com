@@ -97,6 +97,137 @@ slug: "/cheatsheets/kafka/admin"
  * Introduces points for failure
  * Add maintenance
  * Separate deployment
+ * Supported
+    *```Avro``` **default**
+    * ```Protobuf```
+    * ```JSON schema```
+### Key Features
+ * **versioned history**
+    * **subject name strategy**
+ * **compability management**
+
+### Key Concepts
+ * **topic** message key-value pair
+ * **schema** key or value format
+    * name may differ from topic name
+    * **contract** between teams developing producers and teams developing consumers
+ * **subject** name scopes schema
+    * ```Subject Name Strategy```
+        * configured
+            * server-wise
+            * per topic
+    * **default** derived from topic name
+
+### Architecture
+ * Independent **deployment**
+ * Called from
+    * ```Producers```
+    * ```Consumers```
+ * Assigns globally unique schema ID
+    * monotonically increasing
+        * written to store
+    * not necessarily consecutive
+    * by primary node
+        * **zombie-primary** protected by batch allocation in store
+            * eg GC pause longer than ZooKeeper timeout
+                * cf. GC settings
+ * Durable schema store
+    * special topic used as highly available write log
+        * availability
+        * durability
+        * ordering
+        * recoverability
+        * should be **compacted**
+ * distributed with single primary
+    * coordinated by
+        * ZooKeeper (deprecated)
+        * Kafka (using group protocol)
+            * ```kafkastore.connection.url``` **unset**
+            * ```kafkastore.bootstrap.servers``` **set**
+    * secondary nodes
+        * **read only**
+        * forwards **writes**
+    * high availability
+        * common pattern use DNS load balancer round robin
+ * multi-datacenter
+
+### Configuration Parameters
+
+ * ```schema-registry.properties```
+
+#### Key
+ * ```kafkastore.connection.url``` **deprecated** for primary elections
+ * ```leader.eligibility```
+    * to upgrade leader election protocol
+        * set **false**
+        * rolling bounce
+        * set **true**
+        * rolling bounce
+ * ```kafkastore.bootstrap.servers``` leadership election, durable storage **set**
+ * ```listeners```
+ * ```schema.compatibility.level```
+    * ```backward``` **default** read data by latest published schema
+    * ```backward_transitive``` read data by all published schema
+    * ```none``` permits any evolution
+    * ```forward``` latest published schema can read data by new schema
+    * ```forward_transitive``` all published schema can read data by new schema
+    * ```full```  back and forward compatible latest schema
+    * ```full_transitive``` back and forward compatible all schema
+ * ```host.name``` advertised
+ * ```leader.eligibility```
+
+#### TLS
+ * brokers
+    * ```kafkastore.ssl.enabled.protocols```
+    * ```kafkastore.ssl.protocol```
+    * ```kafkastore.ssl.provider```
+    * key store
+        * ```kafkastore.ssl.key.password```
+        * ```kafkastore.ssl.keystore.location```
+        * ```kafkastore.ssl.keystore.type```
+        * ```kafakstore.ssl.keystore.password```
+    * trust store
+        * ```kafkastore.ssl.truststore.location```
+        * ```kafkastore.ssl.truststore.password```
+        * ```kafkastore.ssl.truststore.type```
+ * HTTPS
+    * ```ssl.protocol```
+    * ```ssl.client.auth``` **default** false
+    * ```ssl.principal.mapping.rules```
+    * key store
+        * ```ssl.keystore.location```
+        * ```ssl.keystore.type```
+        * ```ssl.keystore.password```
+        * ```ssl.key.password```
+    * trust store
+        * ```ssl.truststore.location```
+        * ```ssl.truststore.type```
+        * ```ssl.truststore.password```
+
+#### SASL
+ * ZooKeeper SASL
+    * ```zookeeper.set.acl```
+ * brokers
+    * ```kafkastore.sasl.keberos.service.name```
+    * ```kafkastore.sasl.mechanism``` **default** ```GSSAPI```
+
+#### Durable Log
+ * ```kafkastore.topic```
+    * **default** ```_schemas```
+    * **must** be compacted
+ * ```kafkastore.topic.replication.factor``` fault tolerance
+    * **default** 3
+ * ```kafkastore.init.timeout.ms``` includes topic creation time
+ * ```kafkastore.security.protocol``` connecting to Kafka
+    * ```PLAINTEXT```
+    * ```SASL_PLAINTEXT```
+    * ```SSL```
+    * ```SASL_SSL```
+ * ```kafkastore.timeout.ms```
+
+#### Troubleshooting
+ * ```debug``` extra logs
+
 
 ### REST API
  * ```GET /subjects```
