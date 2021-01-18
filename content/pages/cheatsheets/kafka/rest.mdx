@@ -1,0 +1,103 @@
+---
+title: Cheatsheet – Apache Kafka – REST Proxy
+slug: "/cheatsheets/kafka/admin"
+---
+
+
+# REST Proxy
+ * Independent component
+ * Communicates with
+    * cluster
+    * schema registry
+ * Provides HTTP-based producers and consumers
+    * ```JSON``` to
+        * full Avro
+        * binary
+    * good for missing features especially those without good Avro support
+ * lower throughput than native
+ * caller responsible for batching
+
+## Deployment and Scaling Out
+ * ```kafka-rest-start```
+    * ```kafka-rest-properties```
+ * ```kafak-rest-stop```
+ * multiple instances behind load balancer
+    * but note impact on consumers
+    * correct configuration needed
+
+# Key Aim
+ * Expose functionality of existing command line tools, consumer and producers over HTTP.
+    * Still a work in progress...
+
+# Key Features
+ * most cluster **metadata**
+ * **producer**
+    * instances are **shared**
+        * **not** possible to configure per request
+ * **consumer**
+    * **stateful** bound to instance
+        * limited configuration per request
+ * formats
+    * JSON
+    * raw ```base64```
+    * JSON-encoded, schema registered
+        * Avro
+        * Protobuf
+        * JSON Schema
+ * **admin**
+    * topic configurations
+
+## Not Supported
+ * Multi-topic produce requests
+ * Most Producer/Consumer overrides
+
+# Production Considerations
+ * Hardware
+    * Memory
+        * 1GB heap typical
+            * scale out to avoid long GC pauses
+        * consider number of concurrent consumers
+            * ~16Mb per consumer
+            * buffers
+                * ```fetch.max.message.bytes``` x ```queued.max.message.chunks```
+                * ```consumer.request.max.bytes``` response buffer
+    * CPU
+        * ```16``` recommended
+        * more cores better than faster cores
+        * threading model, cores limit concurrent requests
+    * Disks
+        * logging only
+    * Network
+        * highest impact
+        * standard data center fine for most
+        * co-locate with cluster to reduce latency
+ * JVM
+    * Java 8
+        * ```G1``` collector
+ * Load balancing
+    * absolute URLs returned so each server needs to be addressable
+    * consumers are stateful so **sticky** load balancer
+        * unless consumer correctly addresses URLs returned
+
+# Properties
+
+## Key
+ * ```boostrap-servers```
+ * ```schema-registry-url```
+ * ```id``` **unique**
+ * tuning
+    * ```consumer.request.max.bytes``` tradeoff, limits batching
+    * ```fetch.min.bytes```
+    * ```consumer.request.timeout.ms``` enables batching, tradesoff with latency
+    * ```consumer.threads``` **must** set higher than max consumers in a group
+
+# Monitoring
+ * per server
+    * ```connections-opened-rate```
+    * ```connections-closed-rate```
+ * and per endpoint
+
+# Security
+ * authorization
+    * REST proxy **translates**
+        * Set up ACLs on brokers
