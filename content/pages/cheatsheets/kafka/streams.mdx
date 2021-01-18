@@ -3,6 +3,79 @@ title: Cheatsheet – Apache Kafka – Streams
 slug: "/cheatsheets/kafka/streams"
 ---
 
+# Key Features
+ * **time**
+ * **windowing**
+    * **event time** windowing with out-of-order arrivals handling
+ * A client **library** scales with application
+ * No external dependencies beyond Kafka
+ * fault tolerant **local state**
+ * **exactly once** semantics
+ * High and low level APIs
+
+# Key Concepts
+ * **stream**
+    * unbounded
+    * continuously updating
+    * ordered
+    * replayable
+    * fault tolerant
+    * sequence of immutable **data records**
+        * **data record** is key-value pair
+ * **stream processing application**
+    * one or more **processor topologies**
+        * **topology** graph of **stream processors** connected by streams
+            * **source processor** emits data with no upstream processors
+            * **sink processor** accepts data with no downstream processors
+ * **time**
+    * **wallclock time** when the application executes
+    * **stream time** ```Streams``` **timestamp** set via ```TimestampExtractor```
+        * **message timestamp** configured by **broker** to be either
+            * **event time**
+            * **ingestion time**
+        * **processor time**
+    * records created
+        * one input record -> inherit
+        * many input records -> inherit max
+        * generated eg periodically -> **internal time**
+            * clocks should be sync'd
+        * stream-table joins -> stream time
+ * **stream-table** duality
+    * stream is changelog of a table
+    * table is snapshot of a stream
+ * **aggregation**
+    * output **table**
+ * **windowing**
+    * group records with **same key** using time
+        * **grace period**
+            * wait for **out-of-order** records
+            * not needed for **processor time**
+ * State
+    * local **state stores**
+        * **fault tolerance**
+        * **automatic recovery**
+        * **interactive queries** read-only
+        * named
+ * Processing Guarantees
+  * **exactly once** semantics
+    * ```processing.gaurantee``` to ```exactly_once```
+    * **no** microbactching
+    * uses **idempotent** and **transactional** producers
+    * for any record read from Kafka source topic
+        * its processing results will be reflected exactly once in
+            * **state stores** and
+            * **output topic**
+    * ```exactly-once beta``` new, more efficient mechanism
+  * **out-of-order** handling
+    * tradeoffs between cost, latency and correctness
+        * topic-partition timestamps may not increase monotonically
+        * unless application is configured to wait until all buffers full
+            * when picking from multiple topic-partitions, smallest may not be present
+        * **windowing** operations tradeoff **configurable**
+        * ```stream-stream``` joins correct but extra ```nulls```
+        * ```stream-table``` joins out-of-order **not handled** may be **inconsistent**
+        * ```table-table``` joins out-of-order **not handled** but **eventually consistent**
+
 # Key Qualities
 
  * **Scalability**
@@ -84,7 +157,28 @@ slug: "/cheatsheets/kafka/streams"
 
 
 
-
+# Architecture
+ * **stream partition** totally ordered sequence of data maps to **kafka topic**
+ * **data record** maps to a **kafka message**
+ * **task**
+    * created based on input partitions
+    * assigned fixed **partitions**
+    * instantiates topology
+    * maintains buffers
+    * processes records
+ * **maximum parallelism** bounded by stream tasks which is bounded by partitions
+    * **excess** idle tasks available for high availability
+ * **tasks** distributed over available application instances
+ * **stream threads**
+    * available to be assigned one or more **stream tasks**
+    * **no** state shared between threads
+ * assignment transparently handed by **kafka coordination**
+ * **state stores**
+    * **local** to task
+ * **fault tolerance** relies on Kafka partitions and topics
+    * ```changelog``` replicates local state stored
+        * replay rebuilds local state store after reassignment
+        * ```num.standby.relicas``` high availability via **standby replicas**
 
 # Properties
 
@@ -477,3 +571,4 @@ slug: "/cheatsheets/kafka/streams"
  * Using **record cache**
     * rate of production limited by per stream thread cache size
     * **record cache** space allows de-duplication of values in nearby offsets
+
