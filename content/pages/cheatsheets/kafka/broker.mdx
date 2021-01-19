@@ -96,3 +96,15 @@ slug: "/cheatsheets/kafka/broker"
         * use local agent to report stats
         * remote **disabled** by default
             * ```KAFKA_JMX_OPTS``` environment variable
+
+# Architecture
+ * **record batch**
+    * disc format
+        * magic **2**
+            * ```CRC-32``` after **magic byte**
+            * preserves original first and last offset/sequence
+            * possible to have cleaned logs with no messages
+ * **control batch** one **control record**
+    * filters out aborted transactions
+ * **write**
+ * pagecache-centric design
