@@ -83,3 +83,171 @@ slug: "/cheatsheets/kafka/admin"
     * most often addressed using **schema registry** pattern
         * separate component
         * allows producers and consumers to know when data is invalid
+
+
+---
+
+# Operations
+
+ * either
+    * disable automatic topic creation
+    * or tune parameters
+
+## Topics
+
+### Creation
+ * ```kafka-topics```
+ * partitions
+    * max parallelism
+ * topic name length
+    * limited by toptic folder name length **255**
+        * topic name plus partition
+
+### Modification
+ * ```kafka-topics```
+    * partitions
+        * **add**
+            * likely to disruption consumers
+        * remove **not supported**
+ * ```kafka-configs``` add, remove **configuration** per topic
+
+### Deletion
+ * ```kafka-topics```
+
+## Brokers
+
+### Graceful Shutdown
+ * ```kafka-stop-server```
+    * sync logs to disc
+    * migrations partitions
+        * ```controlled.shutdown.enabled```
+
+### Rebalance
+ * **preferred replica**
+    * ```auto.leader.rebalance``` **default** true
+        * when **false** trigger
+            * ```kafka-preffered-replica-election```
+ * **racks**
+    * tolerate rack failure by spreading relicas across racks
+    * not just racks, useful for cloud zones
+    * ```broker.rack```
+    * uneven brokers per rack allowed
+        * but increase load on brokers in racks with less capacity
+        * even best practice
+
+### Mirroring
+ * **mirroring** means data replication **between** clusters
+    * avoids confusion with partition replicas within clusters
+    * ```kafka-mirror-maker```
+        * hooks up consumer, producer internally
+        * **no** guarantees about partitions, offsets
+        * **not** seamless fault tolerance
+        * more like disaster recovery
+        * ```--whitelist '*'``` mirrors all topics
+        * ```auto.create.topic.enable```
+
+### Cluster Expansion
+ * adding brokers
+    * **no** automatic data or partition migration
+    * ```kafak-reassign-partitions``
+        * ```--generate``` candidate reassignment plan
+        * ```--execute``` plan
+            * could be hand crafted
+        * ```--verify``` status:
+            * success
+            * fail
+            * in progess
+        * tactics
+            * **rebalance**
+            * **relocate** topics
+            * selectively move replicas
+ * decomissioning brokers
+    * ```kafak-reassign-partitions``
+        * **no** automatic generation
+        * **must** created manual plan
+
+### Increase Replication Factor
+ * ```kafak-reassign-partitions``
+    * hand craft reassignment plan
+
+### Throttling Data Migration
+ * ```kafka-reassign-partitions```
+    * ```--throttle```
+        * ```kafak-config --describe``` to check throttling
+        * ```kafak-config --alter``` to change throttling
+        * considerations
+            * **remove throttle** after completion
+            * **ensure progress**
+                * monitor **lag**
+
+### Quotas
+ * ```kafak-configs```
+ * broker configs overridden by ZooKeeper
+    * ```quota.consumer.default```
+    * ```quota.producer.default```
+
+### High Latency Interconnections
+ * ```socker.send.buffer.bytes```
+ * ```socket.receive.buffer.bytes```
+
+### Java
+ * Supported
+    * ```Java 8```
+    * ```Java 11``` **highly recommended**
+        * ```G1GC```
+        * **TLS**
+        * thread-local handshakes
+
+### Hardware Considerations
+ * Enough memory to buffer
+    * active readers and writers
+ * High disk throughput
+    * do not share disks
+ * Unix (Linux, Solaris) supported
+    * lots of file descriptors
+        * ```100000``` base line
+    * Max socket buffer size
+        * high latency legs
+    * ```vm.max.map_count``` maximum memory map count
+        * important for max partitions
+ * Flush
+    * **default** Kafka relies on OS
+    * flushing to disk not required for durability
+ * Filesystem
+    * **EXT4**
+        * tuning required, good performance means unsafe options
+            * ```commit``` high number improves throughput
+            * disable journalling
+            * ordering not needed
+                * ```nobh```
+                * ```data=writeback```
+                * ```dealloc```
+    * **XFS**
+        * better performance **recommended**, minimal tuning
+    * ```noatime```
+
+
+## Consumer Groups
+
+### Information
+ * ```kafka-consumer-groups```
+    * ```--list```
+    * ```--describe```
+        * ```--members --verbose```
+        * ```--state```
+
+### Deletion
+ * **only** when no active members
+ * ```--delete```
+
+### Reset Offsets
+ * **only** when no active members
+ * ```--reset-offsets```
+    * for **old** consumer```--zookeeper``` required
+
+
+# Monitoring and Troubleshooting
+
+## Consumer Position
+ * ```kafka-consumer-groups --describe ...```
+
