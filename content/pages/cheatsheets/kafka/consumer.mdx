@@ -48,7 +48,7 @@ slug: "/cheatsheets/kafka/consumer"
   * at least one required
   * no requirement for all brokers
   * if all listed brokers are down, producer cannot make initial connection to cluster
- * ```key.desercializer```
+ * ```key.desersializer```
  * ```value.deserializer```
 
 ## Important
@@ -99,11 +99,11 @@ slug: "/cheatsheets/kafka/consumer"
     * enables consumer read from closest relica rather than leader
     * in cloud deployments, often zone
  * ```receive.buffer.bytes```
-  * **-1** indicates OS default
-  * set higher when network links has high latency and lower bandwitch eg **WAN**
+    * **-1** indicates OS default
+    * set higher when network links has high latency and lower bandwitch eg **WAN**
  * ```send.buffer.bytes```
-  * **-1** indicates OS default
-  * set higher when network links has high latency and lower bandwitch eg **WAN**
+    * **-1** indicates OS default
+    * set higher when network links has high latency and lower bandwitch eg **WAN**
 
 ### Monitoring and Troubleshooting
  * ```client.id``` logical name string identified client application in metrics, logs and quotas
@@ -123,7 +123,7 @@ slug: "/cheatsheets/kafka/consumer"
 
 ## Pool loop
 
-```consumer.pool(timeout)```
+```consumer.poll(timeout)```
 
  * consumer must continue to poll or be considered dead
     * ```max.poll.interval.ms```
@@ -150,7 +150,7 @@ slug: "/cheatsheets/kafka/consumer"
         * failure to retry intermitant failures less important than committing last offset before rebalance or close
         * ```commitSync``` before ```close``` common pattern
     * ```commitAsync(offsets, callback)``` commits specific offsets
-    * **Rebalancing listeners** ```subscribe(topics, listener)
+    * **Rebalancing listeners** ```subscribe(topics, listener)```
         * useful for
             * closing resources
             * committing offsets
@@ -169,14 +169,14 @@ slug: "/cheatsheets/kafka/consumer"
 
 # Schema
 ## Avro
-    * Recommended to generate classes from schema
+ * Recommended to generate classes from schema
 
 ### Key Advantages
-    * Schema Compatibility
-    * Binary
+ * Schema Compatibility
+ * Binary
 
 ### Key Disadvantage
-    * Schema included within file
+ * Schema included within file
 
 ## Schema Registry
 
@@ -184,15 +184,15 @@ slug: "/cheatsheets/kafka/consumer"
 
 ## Key Properties
 
-    * ```schema.registry.url```
-    * ```key.deserializer```
-    * ```value.deserializer```
+ * ```schema.registry.url```
+ * ```key.deserializer```
+ * ```value.deserializer```
 
 
 # Monitoring
 
  * **JMX**
-    *```FetchManager```
+    * ```FetchManager```
         * ```fetch-latency-avg``` natural variation expected
         * ```bytes-consumed-rate```
         * ```records-consumed-rate```

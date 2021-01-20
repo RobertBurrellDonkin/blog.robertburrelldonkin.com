@@ -50,26 +50,6 @@ slug: "/cheatsheets/kafka/admin"
 
 ---
 
-
-# REST Proxy
- * Independent component
- * Communicates with
-    * cluster
-    * schema registry
- * Provides HTTP-based producers and consumers
-    * ```JSON``` to
-        * full Avro
-        * binary
-    * good for missing features especially those without good Avro support
- * lower throughput than native
- * caller responsible for batching
-
-## Deployment and Scaling Out
- * multiple instances behind load balancer
-
-
----
-
 # Schema Evolution
 
  * Brokers adopt ```zero-copy```
@@ -149,7 +129,7 @@ slug: "/cheatsheets/kafka/admin"
 ### Cluster Expansion
  * adding brokers
     * **no** automatic data or partition migration
-    * ```kafak-reassign-partitions``
+    * ```kafak-reassign-partitions```
         * ```--generate``` candidate reassignment plan
         * ```--execute``` plan
             * could be hand crafted
@@ -162,12 +142,12 @@ slug: "/cheatsheets/kafka/admin"
             * **relocate** topics
             * selectively move replicas
  * decomissioning brokers
-    * ```kafak-reassign-partitions``
+    * ```kafak-reassign-partitions```
         * **no** automatic generation
         * **must** created manual plan
 
 ### Increase Replication Factor
- * ```kafak-reassign-partitions``
+ * ```kafak-reassign-partitions```
     * hand craft reassignment plan
 
 ### Throttling Data Migration

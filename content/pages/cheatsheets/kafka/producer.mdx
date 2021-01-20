@@ -119,7 +119,7 @@ slug: "/cheatsheets/kafka/producer"
    * ```SerializationException```
    * ```BufferExhaustedException``` and ```TimeoutException``` indicate resource limits eg buffer full
    * ```InteruptException``` on thread interrupt eg signal
- * ```get`` throws ExecutionException on error **after** push to broker **and**
+ * ```get``` throws ExecutionException on error **after** push to broker **and**
    * error is not retryable **or**
    * retries were exhausted without success
 
@@ -167,14 +167,14 @@ slug: "/cheatsheets/kafka/producer"
 
 # Schema
 ## Avro
-    * Recommended to generate classes from schema
+ * Recommended to generate classes from schema
 
 ### Key Advantages
-    * Schema Compatibility
-    * Binary
+ * Schema Compatibility
+ * Binary
 
 ### Key Disadvantage
-    * Schema included within file
+ * Schema included within file
 
 ## Schema Registry
 
@@ -182,9 +182,9 @@ slug: "/cheatsheets/kafka/producer"
 
 ## Key Properties
 
-    * ```schema.registry.url```
-    * ```key.serializer```
-    * ```value.serializer```
+ * ```schema.registry.url```
+ * ```key.serializer```
+ * ```value.serializer```
 
 # Interceptors
 

@@ -135,7 +135,7 @@ slug: "/cheatsheets/kafka/streams"
             * ```group.initial.rebalance.delay.ms``` broker setting tradeoff
     * large key spaces -> ```changelog``` size -> long time to replay
         * prune keys
-            * **tombstones** ```null`` value for key marks no longer of interest
+            * **tombstones** ```null``` **value** for key marks no longer of interest
         * window retention
             * **windowed stores** multidimensional keys
             * temporary pruning
@@ -393,10 +393,10 @@ slug: "/cheatsheets/kafka/streams"
     * ```reduce``` same type
     * ```count```
     * aggregating streams requires
-        *```initializer```
+        * ```initializer```
         * ```adder```
     * aggregating tables
-        *```initializer```
+        * ```initializer```
         * ```adder```
         * ```subtractor```
  * windowing
@@ -464,8 +464,8 @@ slug: "/cheatsheets/kafka/streams"
     * **embedded** are internal and local associated with a task
         * colocation improves availability and reduces network traffic
         * fault tolerance through replay
-            * **stand by*** aka **shadow** replicas reduce fault recovery time
-        * high read availability through **stand by*** aka **shadow** replicas
+            * **stand by** aka **shadow** replicas reduce fault recovery time
+        * high read availability through **stand by** aka **shadow** replicas
         * **persistent** write to local disk
             * ```STATE_DIR_CONFIG``` default ```/tmp```
                 * **note** ```/tmp``` is unlikely to survive a reboot
@@ -496,7 +496,7 @@ slug: "/cheatsheets/kafka/streams"
  * Multidimensional keys
 
 ## Materilized Stores
- * enables **interactive queries***
+ * enables **interactive queries**
  * force materialization to allow read only access outside the topology
  * access by name and type using ```QueryableStoreTypes``` factory
  * queries vary by store type

@@ -262,8 +262,8 @@ slug: "/cheatsheets/kafka/ksql"
     * same partition count and strategy
         * workaround by creating new table or stream with compatible partitioning
  * **persistent joins**
-    * ```CREATE STREAM ... AS SELECT ... INNER JOIN ... EMIT CHANGES ;"
-    * ```CREATE TABLE ... AS SELECT ... LEFT JOIN ...  ;"
+    * ```CREATE STREAM ... AS SELECT ... INNER JOIN ... EMIT CHANGES ;```
+    * ```CREATE TABLE ... AS SELECT ... LEFT JOIN ...  ;```
  * windowing
     * ```TIMESTAMP``` defined on ```CREATE```
     * ```WITHIN``` **sliding window** based on difference in timestamps

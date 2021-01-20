@@ -4,7 +4,7 @@ slug: "/cheatsheets/kafka/security"
 ---
 
 # Key Concepts
- * **Clients*** internal on **LAN*** and external
+ * **Clients** internal on **LAN** and external
     * ```Producer```
     * ```Consumer```
  * **Brokers**
@@ -115,7 +115,7 @@ slug: "/cheatsheets/kafka/security"
     * ```SASL/SCRAM``` at least one mechanism must be configured on brokers
     * ```delegration.token.master.key``` all brokers must have same
  * Reauthentication
-    *```SASL``` **only**
+    * ```SASL``` **only**
         * ```TLS``` renegotiation has known vulnerabilities
             * Use ```Deny ACLs``` to disable access instead
     * ```connections.max.reauth.ms```
