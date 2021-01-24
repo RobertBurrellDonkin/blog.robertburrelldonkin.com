@@ -231,3 +231,42 @@ slug: "/cheatsheets/kafka/admin"
 ## Consumer Position
  * ```kafka-consumer-groups --describe ...```
 
+---
+
+# Topics
+
+## Troubleshooting
+
+### Topics Describe
+ * ```kafka-topics --bootstrap-server --describe```
+    * ```kafka-topics --bootstrap-server localhost:9092 --describe --topics-with-overrides```
+        * shows topics where config has been overridden
+    * ```kafka-topics --bootstrap-server localhost:9092 --describe --unavailable-partitions```
+        * shows topics where leader is not available
+    * ```kafka-topics --bootstrap-server localhost:9092 --describe --under-min-isr-partitions```
+        * show partitions where ISR is below minimum
+    * ```kafka-topics --bootstrap-server localhost:9092 --describe --at-min-isr-partitions```
+        * show partitions where ISR is at minimum
+    * ```kafka-topics --bootstrap-server localhost:9092 --describe --under-replicated-partitions```
+        * show under-replicated partitions
+    * Regular Expressions
+
+### Consumer Groups
+ * ```--list```
+    * ```kafka-consumer-groups --bootstrap-server localhost:9092 --list --state```
+        * lists the state of all groups
+    * ```kafka-consumer-groups --bootstrap-server localhost:9092 --list --state stable,empty```
+        * lists groups in given states
+ * ```--describe```
+    * ```kafka-consumer-groups --bootstrap-server localhost: 9092 --describe --group group --members```
+        * describes members of a consumer group
+        * ```kafka-consumer-groups --bootstrap-server localhost: 9092 --describe --group group --members --verbose```
+            * includes more details
+    * ```kafka-consumer-groups  --bootstrap-server localhost:9092 --describe --group group --offsets```
+        * describes group, listing all topic partitions together with their offset lag
+        * ```kafka-consumer-groups  --bootstrap-server localhost:9092 --describe --group group --offsets --verbose```
+            * includes more details
+    * ```kafka-consumer-groups  --bootstrap-server localhost:9092 --describe --group group --state```
+        * describes the state of a group
+        * ```kafka-consumer-groups  --bootstrap-server localhost:9092 --describe --group group --state --verbose```
+            * includes more details
