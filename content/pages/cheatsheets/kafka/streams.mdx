@@ -1,0 +1,574 @@
+---
+title: Cheatsheet – Apache Kafka – Streams
+slug: "/cheatsheets/kafka/streams"
+---
+
+# Key Features
+ * **time**
+ * **windowing**
+    * **event time** windowing with out-of-order arrivals handling
+ * A client **library** scales with application
+ * No external dependencies beyond Kafka
+ * fault tolerant **local state**
+ * **exactly once** semantics
+ * High and low level APIs
+
+# Key Concepts
+ * **stream**
+    * unbounded
+    * continuously updating
+    * ordered
+    * replayable
+    * fault tolerant
+    * sequence of immutable **data records**
+        * **data record** is key-value pair
+ * **stream processing application**
+    * one or more **processor topologies**
+        * **topology** graph of **stream processors** connected by streams
+            * **source processor** emits data with no upstream processors
+            * **sink processor** accepts data with no downstream processors
+ * **time**
+    * **wallclock time** when the application executes
+    * **stream time** ```Streams``` **timestamp** set via ```TimestampExtractor```
+        * **message timestamp** configured by **broker** to be either
+            * **event time**
+            * **ingestion time**
+        * **processor time**
+    * records created
+        * one input record -> inherit
+        * many input records -> inherit max
+        * generated eg periodically -> **internal time**
+            * clocks should be sync'd
+        * stream-table joins -> stream time
+ * **stream-table** duality
+    * stream is changelog of a table
+    * table is snapshot of a stream
+ * **aggregation**
+    * output **table**
+ * **windowing**
+    * group records with **same key** using time
+        * **grace period**
+            * wait for **out-of-order** records
+            * not needed for **processor time**
+ * State
+    * local **state stores**
+        * **fault tolerance**
+        * **automatic recovery**
+        * **interactive queries** read-only
+        * named
+ * Processing Guarantees
+  * **exactly once** semantics
+    * ```processing.gaurantee``` to ```exactly_once```
+    * **no** microbactching
+    * uses **idempotent** and **transactional** producers
+    * for any record read from Kafka source topic
+        * its processing results will be reflected exactly once in
+            * **state stores** and
+            * **output topic**
+    * ```exactly-once beta``` new, more efficient mechanism
+  * **out-of-order** handling
+    * tradeoffs between cost, latency and correctness
+        * topic-partition timestamps may not increase monotonically
+        * unless application is configured to wait until all buffers full
+            * when picking from multiple topic-partitions, smallest may not be present
+        * **windowing** operations tradeoff **configurable**
+        * ```stream-stream``` joins correct but extra ```nulls```
+        * ```stream-table``` joins out-of-order **not handled** may be **inconsistent**
+        * ```table-table``` joins out-of-order **not handled** but **eventually consistent**
+
+# Key Qualities
+
+ * **Scalability**
+    * **topic-partition** distributed to **consumers** within a **consumer group**
+    * capacity limited by
+        * **partitioning**
+        * **consumers**
+    * **elasticity** within **limits**
+        * **rebalancing** costs
+    * **standby** replicas for state stores
+    * **rebalancing costs**
+        * **sticky assignment** by default
+            * where possible, tasks with state remain on same machine after rebalance
+        * **but** need to prevent **unnecessary rebalances**
+            * rolling bounce may trigger a cascade of rebalances
+                * set **static membership** to limit costs ```group.instance.id```
+                    * with ```session.timeout.ms``` high enough to allow bounce
+        * **incremental cooperative rebalancing**
+            * iterative
+            * no **stop the world**
+            * slower
+    * vertically by adding **stream threads** per machine
+    * horizontally by adding machines with same application (```application.id```)
+ * **Reliability**
+    * **consumer groups**
+        * **fault tolerance** through **rebalancing**
+    * **fault tolerance** for stateful operations on application-side
+        * **changelog** topic backs state stores
+            * replay from topic reconstructs state
+        * **standby** replicas for state stores
+ * **Maintainability**
+    * mature kafka ecosystem
+    * deployment agnostic using application resources
+    * **kappa** only, single model
+    * **stream-relational**
+ * **event-by-event** processing model
+    * **no** microbatching
+    * kafka achieves similar low latency, high throughput by higher parallelism
+        * note **partitioning** therefore key
+        * **depth-first**
+            * **slow** processors block ingress
+            * per **sub-topology**
+            * factor blocking processing into separate **sub-topologies**
+    * **kappa** architecture
+        * **no** lambda
+        * **not** hybrid
+    * **stream-relational**
+    * **dataflow programming** paradigm
+    * topologies are **templates**
+        * parallelized across **tasks** and **stream threads**
+        * **stream threads** ```num.stream.threads```
+ * High Availabilty
+    * **standby** replicas ```metadata.standbyHosts``` can serve stale results
+    * rolling upgrade problem
+        * **standby** replicas trigger relance when node comes back up
+            * possible to use two consumer groups, hot and cold
+            * ```group.initial.rebalance.delay.ms``` broker setting tradeoff
+    * large key spaces -> ```changelog``` size -> long time to replay
+        * prune keys
+            * **tombstones** ```null``` **value** for key marks no longer of interest
+        * window retention
+            * **windowed stores** multidimensional keys
+            * temporary pruning
+            * ```Materialized.withRetention(duration)```
+        * compaction
+            * **segment** files together comprise topic log
+            * **active segment** log currently open for appending
+            * **inactive segments** may be cleaned
+                * reduces disk spade
+                * reduces records client may need to read
+            * **aggressive compaction** for **topic** may reduce rebuild time
+                * ```Materialized.withLoggingEnabled(topicConfig)```
+                * ```segment.bytes``` smaller files, more granular control over retention
+                * ```segment.ms``` upper bound forcing active log to roll even when not full
+                * ```min.cleanable.dirty.ratio``` lower means more but less efficient cleanings, lower disk space and fewer unneeded records retained
+                * ```max.compaction.log.ms```
+                * ```min.compaction.log.ms```
+
+
+
+
+# Architecture
+ * **stream partition** totally ordered sequence of data maps to **kafka topic**
+ * **data record** maps to a **kafka message**
+ * **task**
+    * created based on input partitions
+    * assigned fixed **partitions**
+    * instantiates topology
+    * maintains buffers
+    * processes records
+ * **maximum parallelism** bounded by stream tasks which is bounded by partitions
+    * **excess** idle tasks available for high availability
+ * **tasks** distributed over available application instances
+ * **stream threads**
+    * available to be assigned one or more **stream tasks**
+    * **no** state shared between threads
+ * assignment transparently handed by **kafka coordination**
+ * **state stores**
+    * **local** to task
+ * **fault tolerance** relies on Kafka partitions and topics
+    * ```changelog``` replicates local state stored
+        * replay rebuilds local state store after reassignment
+        * ```num.standby.relicas``` high availability via **standby replicas**
+
+# Properties
+
+## Required
+ * ```application.id```
+    * used as prefix
+    * used as consumer group
+    * default **client.id**
+    * subdirectory for persistent stores
+ * ```bootstrap.servers```
+
+## Key
+ * ```num.stream.threads```
+    * increasing tasks per thread increases CPU utilitization
+    * limited by cores
+    * limited by task count
+ * DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG
+    * ```LogAndFailExceptionHandler```
+    * ```LogAndContinueExceptionHandler```
+ * ```group.instance.id``` **static** consumer group membership
+    * reduces costly rebalances
+    * ```id``` must be **unique** across **cluster**
+        * **not** merely application
+    * set ```session.timeout.ms``` high enough allow time for tear down and restart
+        * but low enough to detect actual failure
+
+## Important
+ * ```num.standby.replicas```
+ * ```processing.gaurantee```
+    * ```at_least_once``` under some fault conditions messages may be redelivered
+    * ```exactly_once``` more lag, less throughput
+
+## Notable
+ * ```acceptable.recovery.lag``` number of unread records in input partition for task to be considered **warm** (ready)
+    * whilst recovering state, may be wise to set this parameter
+ * ```cache.max.bytes.buffering``` **record cache**
+    * setting above zero enables cache
+        * effectively rate limit application by de-duplication
+ * ```default.deserialization.exception.handler```
+ * ```default.production.exception.handler``` eg message size too large
+    * **default** fail and shutdown
+ * ```default.timestamp.extractor```
+ * ```default.key.serde```
+ * ```default.value.serde```
+ * ```max.task.idle.ms``` maximum buffer fill wait time
+    * higher values add latency but reduce out-of-order messages for multiple input operations
+        * **joins** in particular
+ * ```max.warmup.replicas```
+    * in addition to ```num.standby.replicas```
+ * ```metrics.recording.level```
+ * ```num.standby.replicas``` for each state store
+ * ```num.stream.threads```
+    * increasing count increases CPU util up to cores available
+ * ```replication.factor``` internal topics
+    * ```changelog```
+    * ```repartition```
+ * ```state.dir```
+ * ```topology.optimization``` default **disabled**
+
+## Compaction
+ * aggressive compaction for **topic** reduces state store rebuild time ```Materialized.withLoggingEnabled(topicConfig)```
+    * ```segment.bytes``` smaller files, more granular control over retention
+    * ```segment.ms``` upper bound forcing active log to roll even when not full
+    * ```min.cleanable.dirty.ratio``` lower means more but less efficient cleanings, lower disk space and fewer unneeded records retained
+    * ```max.compaction.log.ms```
+    * ```min.compaction.log.ms```
+
+## Reducing Unnecessary Writes
+
+ * Set both together to du-dep consequtive writes but increase memory, latency
+    * ```cache.max.bytes.buffering``` large caches reduces duplicate writes
+        * shared evenly across all tasks
+    * ```commit.interval.ms``` higher commit reduces duplicate writes
+
+## Record Cache
+ * ```num.stream.threads``` set stream threads
+    * each stream thread allocated **even** share of total cache size
+ * **per stream** thread cache size important for throughput
+    * internal
+    * downstream
+    * **record cache** space allows de-duplication of values in nearby offsets
+
+## Configure Specific Consumers
+ * Use prefixes
+    * ```main.consumer``` for default consumer
+    * ```restore.consumer``` reads changelog to recover state stores
+    * ```global.consumer``` GlobalKTables
+
+# APIs
+ * Start
+    * ```new KafkaStreams(topology, config).start()```
+        * non-blocking
+        * spawns processing **stream threads**
+ * Stop
+    * ```streams.close()```
+ * High level functional **DSL**
+    * ```builder.stream(name).foreach((k,v)->...)```
+ * Low level **Processor API**
+    * ```topology.addSource(name, source)```
+    * ```topology.addProcessor(name, processor)```
+    * **when** ...?
+        * access metadata
+            * ```context``` set to current record
+        * schedule periodic actions
+            * ```ProcessorContext.schedule```
+                * ```STREAM_TIME``` highest timestamp seen
+                    * continuous event flow
+                * ```WALL_CLOCK_TIME``` local time on processor
+        * fine grained control over downstream dispatch
+        * granular access to state stores
+            * **punctators**
+    * no table or views but ```processors``
+ * Hybrid Operations
+    * ```processor``` terminates DSL chain with ```Processor``` from low level API
+    * ```transform``` **1:N** ```Transformer```
+    * ```transformValues``` **1:1** ```ValueTransformer``` ```ValueTransformerWithKey```
+    * ```flatTransform``` **1:N** ```Transformer```
+    * ```flatTransformValues``` **1:N** ```ValueTransformer``` ```ValueTransformerWithKey```
+ * **Stream** data model
+    * represents a **topic**
+    * interested in history of values for **key**
+        * within retention window
+    * consumed from Kafka
+    * ```KStream```
+    * stream of **fact**
+ * **Table** data model
+    * also represents a **topic**
+    * interested only in **latest** (highest offset) value for **key**
+    * typically compacted topic ```cleanup.policy``` set to ```compact```
+    * **stateful**
+    * often used for **aggregations**
+    * materialized using application-side key-value store
+        * default **RocksDB**
+    * built on the application side
+    * ```KTable```
+        * also represents a **topic**
+        * **partitioned** following the topic
+        * **distributed** by partition
+        * **time synchronized**
+    * ```GlobalKTable```
+        * complete unpartitioned copy
+        * high local overhead for large keyspaces
+        * **not** time synchronized
+            * joins always against the latest
+    * behaviours
+    * relationships between events
+    * **stream-relational** snapshot of moving stream of facts
+ * **Stream-Table Duality**
+    * a stream might be reconstitute a table
+    * table changes might be logged as a stream
+
+# Operations
+ * **Stateful**
+    * ```Table``` views
+    * typical use cases
+        * **joining**
+        * **aggregating**
+        * **windowing**
+    * topology includes **any** stateful operator
+    * **co-partitioning** may be required
+      * **related** events need to be handled by same task
+        * same **partition**
+            * keyed by same field partitioned to same partition
+ * **Stateless**
+    * ```Stream``` views **only**
+    * no memory needed of previous events
+    * topology includes **no** stateful operators
+    * **repartitioning** operators
+        * send to new internal topic
+        * read back from internal topic
+        * network round trip cost means these are often expensive operations
+
+ * **Sinks**
+
+## Sinks ###
+ * ```to``` topology **terminator**
+ * ```through``` **deprecated** **sub-topology**
+ * ```repartition``` **sub-topology**
+
+## Stateless
+ * ```filter```
+    * filter as early as possible to reduce wasted processing
+ * ```filterNot```
+    * syntactic sugar
+    * improves readability
+ * ```print```
+ * ```branch```
+ * ```map``` **re-keys**
+ * ```mapValues``` **retains key**
+    * more efficient than ```map``` unless **rekeying**
+ * ```flatMap``` multiple outputs for each input **re-keys**
+ * ```flatMapValues``` multiple outputs for each input **retains key**
+    * more efficient than ```map``` unless **rekeying**
+ * ```merge```
+ * ```selectKey``` - **re-keys**
+
+## Stateful
+ * joins
+    * ```join``` both sides share key
+    * ```leftJoin``` when no match for left, right ```null```
+    * ```outerJoin``` when no match, other side ```null```
+    * **co-partitioning**
+        * same number of partitions on each side of join checked at start up
+        * **unless** ```GlobalKTable```
+    * **changelog** internal topic backs state store
+ * aggregation
+    * **group by** before aggregation operation
+        * ```groupBy``` **repartitions** via internal topic
+        * ```groupByKey``` more efficient (less network costs) when retaining same key
+        * ```KGroupedStream```
+    * ```aggregate``` any type
+    * ```reduce``` same type
+    * ```count```
+    * aggregating streams requires
+        * ```initializer```
+        * ```adder```
+    * aggregating tables
+        * ```initializer```
+        * ```adder```
+        * ```subtractor```
+ * windowing
+    * ```windowBy```
+
+# Windowing
+
+ * Time Semantics
+    * **Event time** when created at source
+    * **Ingestion time** when appended to a topic on the broker
+        * sometimes used to approximate *event time*
+    * **Processing time** when processed by streams application
+    * **Stream time** highest timestamp so far seen
+ * ```DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG``` **Timestamp extractor** used in windowing operations
+    * ```FailOnInvalidTimestamp``` **default**  uses record timestamp
+        * ```message.timestamp.type``` on broker controls how this is set
+        * ends processing should an event have an invalid timestamp
+    * ```LogAndSkipOnInvalidTimestamp``` uses record timestamp
+        * ```message.timestamp.type``` on broker controls how this is set
+        * ignores events with invalid timestamps
+    * ```WallclockTimestampExtractor``` uses processing time
+        * unusual choice for windowing
+    * Or custom extractor from data
+        * return negative timestamp to skip
+ * Window Types
+    * **Tumbling** ```TimeWindows.of(duration)```
+        * fixed size
+        * no overlap
+        * each event in unique window
+    * **Hopping** ```TimeWindows.of(duration).advanceBy(duration)```
+        * fixed size
+        * may overlap
+        * one event may be in more than one window
+    * **session** ```SessionWindow.with(duration)```
+        * variable sized
+        * separated by inactivity
+        * no guarantees of alignment between keys
+    * **sliding** aka **join** ```JoinWindow.of(duration)```
+        * fixed size
+        * based on event time difference
+ * Window operations produce windowed tables with multidimensional keys
+ * Window Results
+    * Event ordering in the log may not be the same as event time
+    * Events may be delayed
+    * Emission tradeoff latency vs completeness
+        * **default** optimizes latency using **continuous refinement**
+        * set **grace** to keep window open ```TimeWindows.of(duration).grace(duration)```
+        * suppress intermediary results
+            * ```Suppressed.untilWindowCloses``` emits final
+            * ```Suppressed.untilTimeLimit``` limits rate
+            * ```BufferConfig``` tunes buffering strategy
+ * **Partition group** buffers events from each stream
+    * priority given to **lowest** timestamp
+    * adjust slighty out-of-order
+
+
+# State Stores
+
+## Types
+
+### Key Value Stores
+ * as opposed to windowed stores
+ * One application may contain many state stores
+ * Types
+    * **embedded** are internal and local associated with a task
+        * colocation improves availability and reduces network traffic
+        * fault tolerance through replay
+            * **stand by** aka **shadow** replicas reduce fault recovery time
+        * high read availability through **stand by** aka **shadow** replicas
+        * **persistent** write to local disk
+            * ```STATE_DIR_CONFIG``` default ```/tmp```
+                * **note** ```/tmp``` is unlikely to survive a reboot
+                * **note** disk performance tradeoff
+                * ```.checkpoint``` files store offsets from ```changelog``` topic
+                * ```.lock``` prevents concurrent access **note** consequences for disk sharing
+            * limited by disk, not memory, space
+            * restored from disk, not rebuilt, potentially quicker recovery time
+            * slower
+    * **ephemeral** ```Materialized.as(name).withLoggingDisabled()``` disabled ```changelog```
+        * cannot be replayed from ```changelog``` topic
+    * **In Memory**
+        * **Fixed Sized LRU**
+            * Least Recently Used
+            * ```stores.lruMap```
+ * **fault tolerant** through
+    * **changelog** topic
+        * ```count(Materialized.as(name)```
+        * if **checkpoint** file exists then replay from checkpoint offset
+        * ```Materialized.as(name).withLoggingEnabled(configs)```
+        * use ```kafka-configs.sh``` to update configuration
+    * **standby replicas**
+        * ```NUM_STANDBY_REPLICAS_CONFIG```
+
+
+### Windowed Stores
+ * Support different interactive
+ * Multidimensional keys
+
+## Materilized Stores
+ * enables **interactive queries**
+ * force materialization to allow read only access outside the topology
+ * access by name and type using ```QueryableStoreTypes``` factory
+ * queries vary by store type
+ * iterators need to be closed
+ * queries include only local data
+ * global queries will require remote calls
+    * ```APPLICATION_SERVER_CONFIG``` communicated via **consumer group** to other group members
+    * ```queryMetadataForKey``` discovers instance that key is partitioned onto
+        * this uses partitioner to establish where the key would be located
+    * ```allMetadataForStore``` discovers all stores
+
+
+# Schemas
+
+## Avro
+ * **Generic records** when schema isn't available at runtime
+ * **Specific records** generated from and include schema definition
+
+## Schema Registry
+ * Reduces message size by including ID for schema.
+ * ```schema.registry.url```
+ * ```AvroSerdes```
+
+# Testing
+ * ```kafka-stream-test-utils```
+    * fake runtime
+    * test helpers
+    * mocks
+    * **Processor API**
+        * ```MockProcessorContext```
+    * topology test driver
+    * ```JMH``` microbenchmarking
+        * useful for discovering when a new step introduces significant new costs
+        * baseline only
+        * limited utility in lower bounding production latency
+    * ```kafka-producer-perf-test```
+        * load and stress test
+        * useful for tuning client characteristics including streams
+    * ```kafka-consumer-perf-test``` useful for assessing sink throughput
+
+# Monitoring
+ * ```metrics.recording.level```
+ * Add ```StateListener``` to instrument transitions to ```rebalancing``` state
+    * ```streams.setStateListener```
+ * Add ```StateRestoreListener``` to instrument state store lifecycle
+    * ```streams.setGlobalStateRestoreListener```
+ * **JMX** instrumentation
+     * Kafka cluster eg ```kafka_exporter``` -> prometheus
+      * under replicated partitions
+      * consumer lag
+      * offset advancement
+      * topic throughput
+      * in sync replicas
+      * poll time
+      * process latency
+      * production and consumption rates
+     * ```JConsole``` for development
+     * Streams and ksql
+      * ```-javaagent:``` jmx agent
+     * **Logs**
+     * Total log rate
+     * Error log rate
+
+# Operations
+## Reset
+ * ```kafka-streams-application-reset``` **reset tool**
+    * **does not** reset application state
+    * update consumer offsets
+    * skips to end of intermediate topics
+    * Deletes **changelog** and **repatition** topics
+## Rate Limiting
+ * Using **record cache**
+    * rate of production limited by per stream thread cache size
+    * **record cache** space allows de-duplication of values in nearby offsets
+

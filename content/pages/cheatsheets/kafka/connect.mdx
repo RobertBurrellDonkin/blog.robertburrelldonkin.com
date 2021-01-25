@@ -1,0 +1,182 @@
+---
+title: Cheatsheet – Apache Kafka – Kafka Connect
+slug: "/cheatsheets/kafka/connect"
+---
+
+# Key Features
+ * framework
+ * bridges batching and streaming
+ * REST API
+ * automated offset management
+ * standalone or distributed and scalable
+
+# Key Concepts
+ * Connectors
+    * **Source**
+    * **Sink**
+ * **Tasks** unit of work
+ * **Workers** execution processes
+    * distribution
+    * fault tolerance
+ * **Connect cluster**
+ * **Converter** serdes
+
+
+
+# Connect Server Properties
+## Key
+ * ```bootstrap.servers```
+ * ```group.id``` identifies cluster
+ * ```key.converter```
+    * ```key.converter.schema.resgistry.url``` for **avro** **protobuf** etc
+ * ```value.converter```
+    * ```value.converter.schema.resgistry.url``` for **avro** **protobuf** etc
+ * ```errors.tolerance```
+ * ```plugin.path```
+ * ```config.storage.topic```
+ * ```offset.storage.topic```
+ * ```status.storage.topic```
+
+## REST API
+ * ```listeners``` **default** ```8083```
+ * **TLS** (usual properties)
+    * key store
+        * ```ssl.keystore.location```
+        * ```ssl.keystore.type```
+        * ```ssl.keystore.password```
+        * ```ssl.key.password```
+    * trust store
+        * ```ssl.truststore.location```
+        * ```ssl.truststore.type```
+        * ```ssl.truststore.password```
+    * ```ssl.enabled.protocols```
+    * ```ssl.client.auth```
+    * also used for inter-cluster communication
+ * request to followers will be redirected to leader
+    * ```rest.advertised.host.name```
+    * ```rest.advertised.post```
+    * ```rest.advertised.listener```
+
+# Worker Properties
+## Required
+ * ```name```
+ * ```connector.class```
+    * supports shorter formats
+ * ```tasks.max```
+### Required By Sinks
+ * Either
+    * ```topics``` or
+    * ```topics.regex```
+
+## Converters
+ * ```key.converter```
+ * ```value.converter```
+
+## Transformers
+ * lightweight message transformations
+ * ```InsertField```
+ * ```ReplaceField```
+ * ```MaskField```
+ * ```ValueToKey```
+ * ```HoistField``` into struct or map
+ * ```ExtractField``` from struct or map
+ * ```SetSchemaMetadata```
+ * ```TimestampRouter```
+ * ```RegexRouter```
+ * ```Flatten```
+ * ```Cast```
+ * ```TimestampConverter```
+ * ```Filter```
+
+## Predicates
+ * allow transforms to be applied to subset
+ * ```TopicNameMatches```
+ * ```HasHeaderKey```
+ * ```RecordIsTombstone```
+
+# Tools
+## CLI
+ * ```confluent-hub install``` connector
+
+# REST API
+ * ```GET /connectors```
+ * ```GET /connectors/<name>```
+ * ```GET /connectors/<name>/tasks```
+ * ```GET /connectors/<name>/tasks/<id>/status```
+ * ```POST /connectors/<name>/tasks/<id>/restart```
+
+# Operations
+
+## Standalone
+ * ```connect-standalone config/connect-standalone.properties connector.properties ... ```
+  * worker properties
+    * **required**
+        * ```bootstrap.servers```
+        * ```key.converter```
+        * ```value.converer```
+    * **key** (standalone)
+        * ```offset.storage.file.filename```
+    * ```consumer.``` consumer properties prefix
+    * ```producer.``` producer properties prefix
+
+## Distributed
+ * ```connect-distributed config/connect-distributed.properties```
+    * offsets, configs and task status stored in topics
+        * fault tolerant
+        * **but** recommended that these are created before start
+            * configure topics for reliability and availability
+    * worker properties
+      * **required**
+          * ```bootstrap.servers```
+          * ```key.converter```
+          * ```value.converer```
+      * **key** (distributed)
+        * ```group.id``` identifies cluster
+            * **must** be unique amongst consumer group ids
+        * ```config.storage.topic``` connectors, tasks
+            * **create manually** to ensure
+                * **single** partition
+                * **highly** replicated
+                * compacted
+        * ```offset.storage.topic```
+            * **create manually** to ensure
+                * **many** partitions
+                * replicated
+                * compacted
+        * ```status.storage.topic```
+            * **create manually** to ensure
+                * mutiple partitions
+                * replicated
+                * compacted
+    * use REST API to manage connectors
+
+## Admin
+ * REST API
+
+# Architecture
+
+ * Independent connect cluster
+    * multiple loaded connectors
+        * packaged as jar
+        * lots of open source connectors
+ * a task is connector + configuration
+ * a job may create multiple tasks
+ * Workers aka server
+    * **tasks** are executed by workers
+ * Source pulls from data source
+ * Sinks pushes into data source
+ * Small transformations along the way
+ * modes
+    * standalone
+        * single process runs connectors and tasks
+        * configuration bundled
+    * distributed
+        * multiple workers (servers)
+        * configuration submitted via REST
+        * scales horizontally
+            * automatically retrieve tasks
+        * fault tolerant
+            * when a worker dies, get a rebalance
+        * multiple tasks same connector allowed on the same worker
+        * stores offsets, status, tasks in kafka topics
+            

@@ -1,0 +1,57 @@
+---
+title: Cheatsheet – Apache Kafka – KooKeeper
+slug: "/cheatsheets/kafka/zookeeper"
+---
+
+# Key Features
+ * distributed configuration
+    * key value store
+    * ```znodes``` tree
+ * election and consensus
+ * distributed locks and coordination
+
+# Architecture
+ * Tree of ```znodes```
+    * leafs
+    * has a paths
+    * persistent
+    * ephemeral
+        * lost after app disconnects
+    * **no** renaming
+    * ```WATCH``` for changes
+
+# Zookeeper and Kafka
+ * broker registration
+    * heartbeat
+ * topics list
+    * configuration
+    * in sync replicas
+ * leader elections
+ * cluster id
+ * ```ACL```s
+ * ```Quotas```
+
+## Configuration
+ * Hard to optimize but start with reasonable defaults
+    * ```dataDir```
+    * ```clientPort```
+    * ```maxClientCnxn```
+    * ```tickTime``` **2000**
+    * ```initLimit``` **10** ticks
+    * ```syncLimit``` **5** ticks
+    * ```server.n```
+
+# Quorum
+ * Quorum Sizing Strategy
+    * strict majority required for voting
+        * **odd** number of servers
+    * tradeoffs
+        * more instances
+            * slower to make decisions
+            * more resilience
+            * combinatorics
+    * **3** ZooKeepers fine for moderate deployments
+    * **5** more communication inter server
+        * needed for big loads
+        * ZooKeeper sensitive to latency, need powerful machines
+    * **7** rare

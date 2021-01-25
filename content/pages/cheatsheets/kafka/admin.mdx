@@ -1,0 +1,272 @@
+---
+title: Cheatsheet – Apache Kafka – Admin
+slug: "/cheatsheets/kafka/admin"
+---
+
+# AdminClient API
+
+## Design Principals
+
+ * **Asynchronous**
+    * ```Result``` wrappers for ```Future```
+    * Considered complete on the **client** after **Controller** state updated
+ * Eventually consistent
+    * Success may be returned before change propagated to all brokers
+    * Read operations directed to least loaded broker, write to **Controller**
+ * **Options** parameter object specific to call
+ * **Flat Hierarchy**
+
+## Properties
+### Required
+ * ```bootstrap.servers```
+  * comma-separated ```host:port``` list of brokers
+  * at least one required
+  * no requirement for all brokers
+  * if all listed brokers are down, producer cannot make initial connection to cluster
+
+### Key Parameters
+ * ```client.dns.lookup``` special case handling
+    * ```resolve_canonical_bootstrap_servers_only``` SASL with single DNS alias
+    * ```use_all_dns_ips``` DNS alias listing IPs
+ * ```request.timeout.ms``` default **120s** includes retries
+
+## Use Cases
+ * Verify that topics have been set up correctly on start-up
+    * In particular, compaction
+ * Logging topic configuration on error or at start-up
+ * Exposing topic configuration as application metric
+ * Allowing an application to create clean topics when starting in development mode
+ * Exploring consumer groups to troubleshoot
+ * Read consumer lag directly via ```listConsumerGroupOffsets```
+ * Ad hoc tooling for site recovery by modifying consumer group data
+    * modifying offsets only allowed when group is **not active**
+ * Collect cluster meta-data metrics
+ * Deleting records for legal reasons
+ * Triggering leader elections
+ * Reassign replicas
+
+## Testing
+ * ```MockAdminClient```
+
+---
+
+# Schema Evolution
+
+ * Brokers adopt ```zero-copy```
+    * key and values just **bytes**
+    * no broker-side validation
+    * key architectural advantage
+ * Producers and consumers are responsible
+ * Need
+    * data to be self-describing
+    * to manage evolution
+    * most often addressed using **schema registry** pattern
+        * separate component
+        * allows producers and consumers to know when data is invalid
+
+
+---
+
+# Operations
+
+ * either
+    * disable automatic topic creation
+    * or tune parameters
+
+## Topics
+
+### Creation
+ * ```kafka-topics```
+ * partitions
+    * max parallelism
+ * topic name length
+    * limited by toptic folder name length **255**
+        * topic name plus partition
+
+### Modification
+ * ```kafka-topics```
+    * partitions
+        * **add**
+            * likely to disruption consumers
+        * remove **not supported**
+ * ```kafka-configs``` add, remove **configuration** per topic
+
+### Deletion
+ * ```kafka-topics```
+
+## Brokers
+
+### Graceful Shutdown
+ * ```kafka-stop-server```
+    * sync logs to disc
+    * migrations partitions
+        * ```controlled.shutdown.enabled```
+
+### Rebalance
+ * **preferred replica**
+    * ```auto.leader.rebalance``` **default** true
+        * when **false** trigger
+            * ```kafka-preffered-replica-election```
+ * **racks**
+    * tolerate rack failure by spreading relicas across racks
+    * not just racks, useful for cloud zones
+    * ```broker.rack```
+    * uneven brokers per rack allowed
+        * but increase load on brokers in racks with less capacity
+        * even best practice
+
+### Mirroring
+ * **mirroring** means data replication **between** clusters
+    * avoids confusion with partition replicas within clusters
+    * ```kafka-mirror-maker```
+        * hooks up consumer, producer internally
+        * **no** guarantees about partitions, offsets
+        * **not** seamless fault tolerance
+        * more like disaster recovery
+        * ```--whitelist '*'``` mirrors all topics
+        * ```auto.create.topic.enable```
+
+### Cluster Expansion
+ * adding brokers
+    * **no** automatic data or partition migration
+    * ```kafak-reassign-partitions```
+        * ```--generate``` candidate reassignment plan
+        * ```--execute``` plan
+            * could be hand crafted
+        * ```--verify``` status:
+            * success
+            * fail
+            * in progess
+        * tactics
+            * **rebalance**
+            * **relocate** topics
+            * selectively move replicas
+ * decomissioning brokers
+    * ```kafak-reassign-partitions```
+        * **no** automatic generation
+        * **must** created manual plan
+
+### Increase Replication Factor
+ * ```kafak-reassign-partitions```
+    * hand craft reassignment plan
+
+### Throttling Data Migration
+ * ```kafka-reassign-partitions```
+    * ```--throttle```
+        * ```kafak-config --describe``` to check throttling
+        * ```kafak-config --alter``` to change throttling
+        * considerations
+            * **remove throttle** after completion
+            * **ensure progress**
+                * monitor **lag**
+
+### Quotas
+ * ```kafak-configs```
+ * broker configs overridden by ZooKeeper
+    * ```quota.consumer.default```
+    * ```quota.producer.default```
+
+### High Latency Interconnections
+ * ```socker.send.buffer.bytes```
+ * ```socket.receive.buffer.bytes```
+
+### Java
+ * Supported
+    * ```Java 8```
+    * ```Java 11``` **highly recommended**
+        * ```G1GC```
+        * **TLS**
+        * thread-local handshakes
+
+### Hardware Considerations
+ * Enough memory to buffer
+    * active readers and writers
+ * High disk throughput
+    * do not share disks
+ * Unix (Linux, Solaris) supported
+    * lots of file descriptors
+        * ```100000``` base line
+    * Max socket buffer size
+        * high latency legs
+    * ```vm.max.map_count``` maximum memory map count
+        * important for max partitions
+ * Flush
+    * **default** Kafka relies on OS
+    * flushing to disk not required for durability
+ * Filesystem
+    * **EXT4**
+        * tuning required, good performance means unsafe options
+            * ```commit``` high number improves throughput
+            * disable journalling
+            * ordering not needed
+                * ```nobh```
+                * ```data=writeback```
+                * ```dealloc```
+    * **XFS**
+        * better performance **recommended**, minimal tuning
+    * ```noatime```
+
+
+## Consumer Groups
+
+### Information
+ * ```kafka-consumer-groups```
+    * ```--list```
+    * ```--describe```
+        * ```--members --verbose```
+        * ```--state```
+
+### Deletion
+ * **only** when no active members
+ * ```--delete```
+
+### Reset Offsets
+ * **only** when no active members
+ * ```--reset-offsets```
+    * for **old** consumer```--zookeeper``` required
+
+
+# Monitoring and Troubleshooting
+
+## Consumer Position
+ * ```kafka-consumer-groups --describe ...```
+
+---
+
+# Topics
+
+## Troubleshooting
+
+### Topics Describe
+ * ```kafka-topics --bootstrap-server --describe```
+    * ```kafka-topics --bootstrap-server localhost:9092 --describe --topics-with-overrides```
+        * shows topics where config has been overridden
+    * ```kafka-topics --bootstrap-server localhost:9092 --describe --unavailable-partitions```
+        * shows topics where leader is not available
+    * ```kafka-topics --bootstrap-server localhost:9092 --describe --under-min-isr-partitions```
+        * show partitions where ISR is below minimum
+    * ```kafka-topics --bootstrap-server localhost:9092 --describe --at-min-isr-partitions```
+        * show partitions where ISR is at minimum
+    * ```kafka-topics --bootstrap-server localhost:9092 --describe --under-replicated-partitions```
+        * show under-replicated partitions
+    * Regular Expressions
+
+### Consumer Groups
+ * ```--list```
+    * ```kafka-consumer-groups --bootstrap-server localhost:9092 --list --state```
+        * lists the state of all groups
+    * ```kafka-consumer-groups --bootstrap-server localhost:9092 --list --state stable,empty```
+        * lists groups in given states
+ * ```--describe```
+    * ```kafka-consumer-groups --bootstrap-server localhost: 9092 --describe --group group --members```
+        * describes members of a consumer group
+        * ```kafka-consumer-groups --bootstrap-server localhost: 9092 --describe --group group --members --verbose```
+            * includes more details
+    * ```kafka-consumer-groups  --bootstrap-server localhost:9092 --describe --group group --offsets```
+        * describes group, listing all topic partitions together with their offset lag
+        * ```kafka-consumer-groups  --bootstrap-server localhost:9092 --describe --group group --offsets --verbose```
+            * includes more details
+    * ```kafka-consumer-groups  --bootstrap-server localhost:9092 --describe --group group --state```
+        * describes the state of a group
+        * ```kafka-consumer-groups  --bootstrap-server localhost:9092 --describe --group group --state --verbose```
+            * includes more details

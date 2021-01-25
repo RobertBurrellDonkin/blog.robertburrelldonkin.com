@@ -1,0 +1,237 @@
+---
+title: Cheatsheet – Apache Kafka – Producers
+slug: "/cheatsheets/kafka/producer"
+---
+
+# Properties
+
+## Required
+ * ```bootstrap.servers```
+  * comma-separated ```host:port``` list of brokers
+  * at least one required
+  * no requirement for all brokers
+  * if all listed brokers are down, producer cannot make initial connection to cluster
+ * ```key.servializer```
+ * ```value.serializer```
+
+## Important
+
+### Throughput, Memory Use, Reliability
+ * ```acks``` the number of partition replicas where record must be committed before send is consider a success
+   * no direct impact **end-to-end** latency unless consumers allowed to read uncommitted data
+   * trades **producer latency** for **reliability**
+   * ```acks=0``` send as fast as network speed without waiting for a reply **high-throughput** **low-reliability**
+   * ```acks=1``` wait for leader replica to commit
+      * producer throughput constrained by in flight message limits
+      * data loss when leader crashes before replicas written
+   * ```acks=all``` wait for all **in-sync** replica to commit
+      * data loss when leader and all in-sync replicas crash
+      * ```enable.indempotence``` allowed
+ * ```linger.ms```
+   * by default (```0```), producer sends batch as soon as sender thread available
+   * setting ```linger.ms``` above ```0``` waits
+     * significantly improves throughput, adds some latency
+     * until linger expires or batch is full
+     * improves compression efficiency
+     * lowers overhead per message
+ * ```buffer.memory``` limits **send buffer**
+     * when **send buffer** is full ```send``` blocks for ```max.block.ms``` waiting for space to be freed
+     * constrains resilience in cases when data is unable to be sent for data sources unable to handle **backpressure**
+ * ```compression.type``` compression trades reduced network utilization, storage on broker for increased CPU on producer and consumers
+    * ```snappy``` low CPU and good compression; recommended
+    * ```gzip```more cpu but better compression; recommended when network is the bottleneck
+    * ```lz4```
+    * ```zstd```
+ * ```batch.size```
+    * memory in bytes
+    * too small adds overhead thanks to more frequent sends
+    * too large wastes memory
+    * ```linger.ms``` limits latency added by batching
+ * ```max.in.flight.requests.per.connection```
+    * Set to **1** guarantees events written by broker in order sent even in the case of retries
+    * ```enable.indempotence```
+    * Higher increases **throughput** by improving batching efficiency whilst increasing **memory usage**
+ * ```max.request.size```
+    * limits batch size sent
+    * limits message size sent
+    * brokers have an independent setting and reject larger requests
+ * ```receive.buffer.bytes```
+    * **-1** indicates OS default
+    * set higher when network links has high latency and lower bandwitch eg **WAN**
+ * ```send.buffer.bytes```
+    * **-1** indicates OS default
+    * set higher when network links has high latency and lower bandwitch eg **WAN**
+ * ```enable.indempotence```
+    * idempotent producer
+        * attaches sequence number
+        * 5 message window
+        * rejects duplicate with ```DuplicateSequenceException``` which requires no further action by the producer
+    * requires (or config exception)
+        * ```max.in.flight.requests.per.connection``` **<=5**
+        * ```acks=all```
+        * ```retries``` **>0**
+
+### Monitoring and Troubleshooting
+ * ```client.id``` logical name string identified client application in metrics, logs and quotas
+
+### Tuning Fire And Wait aka Asynchronous
+ * ```max.block.ms``` limits time ```send``` blocks (when **send buffer** full) before timing out with error
+    * also when requesting metadata via ```partitionsFor```
+    * ```buffer.memory``` limits **send buffer**
+ * ```delivery.timeout.ms``` limits **total time** from ```send``` ready to success or producer gives up
+    * includes
+      * **batching** ```linger.ms``` defaults to zero
+      * **await send**
+      * **retries** ```retry.backoff.ms``` defaults to ```100ms```
+      * **inflight** ```request.timeout.ms```
+    * callback returns error once ```delivery.timeout.ms``` exceeded
+      * possible that broker committed message in this case
+    * to retry until window over, leave retries practically unlimited and set ```delivery.timeout.ms```
+  * ```request.timeout.ms``` limits in-flight time for each request before retrying or giving up
+  * ```retry.backoff.ms``` defaults to ```100ms```
+  * ```retries``` how many times a retryable error should be retried by the producer library before giving up
+    * more reliable to set ```delivery.timeout.ms``` based on estimated recovering time and leave ```retries``` high
+
+
+# Modes
+ * Fire And Forget
+ * Fire And Wait
+   * aka Blocking aka Synchronous
+ * Fire and Listen
+   * aka Non-blocking aka Asynchronous
+
+## Fire And Forget
+
+``` try{ producer.send(record) } catch (Exception e)  ```
+
+ * Ignore returned ```Future```
+ * ```send``` throws exceptions on error **before** push to broker
+   * ```SerializationException```
+   * ```BufferExhaustedException``` and ```TimeoutException``` indicate resource limits eg buffer full
+   * ```InteruptException``` on thread interrupt eg signal
+
+## Fire And Wait
+
+``` try{ producer.send(record).get() } catch (Exception e)  ```
+
+ * Blocks on ```Future```
+ * ```send``` throws exceptions on error **before** push to broker
+   * ```SerializationException```
+   * ```BufferExhaustedException``` and ```TimeoutException``` indicate resource limits eg buffer full
+   * ```InteruptException``` on thread interrupt eg signal
+ * ```get``` throws ExecutionException on error **after** push to broker **and**
+   * error is not retryable **or**
+   * retries were exhausted without success
+
+## Fire And Listen
+
+``` producer.send(record, (meta, exception) -> ...) ```
+
+ * **on error** exception is not null
+   * producer handles retries so pick some other strategy
+   * focus application logic on errors that are not retryable
+ * **on success** exception is not null
+ * metadata returned
+ * callback executes in **main thread**
+   * slow or blocking callbacks limit producer throughput
+   * allow callback ordering within **same partition** to be gauranteed
+ * ```send``` blocks
+   * when **send buffer** is full
+   * for ```max.block.ms``` before timing out with error
+
+# Messages
+ * **key-value** pairs
+    * **key** defaults to ```null```
+    * messages with same **key** go to same **partition**
+
+
+# Partitions
+ * producer determines **partition**
+    * messages with same **key** expect to go to same **partition**
+ * **default partitioner**
+    * when key is **null**
+        * uses **sticky** round-robin, filling a batch before switching to next
+            * reduces requests, latency and broker CPU utilization
+    * when key **exists** uses an algorithm to hash key and map to partition
+        * **all** partitions included in map
+        * in the case that the partition is not available, then an error may need to be handled
+        * assignment consistent only whilst number of partitions remains constant
+            *  easy path is to set number of partition correctly and **never change** it
+ * standard alternatives useful when load may be skewed eg ETL from RDBMS by primary key
+    * ```RoundRobinPartitioner```
+    * ```StickyUniformPartitioner```
+ * create custom partitioner for edge cases
+    * eg. long tail
+    * Java hash algorithm may change between versions so use eg ```murmur2```
+
+
+# Schema
+## Avro
+ * Recommended to generate classes from schema
+
+### Key Advantages
+ * Schema Compatibility
+ * Binary
+
+### Key Disadvantage
+ * Schema included within file
+
+## Schema Registry
+
+ * Serdes identify immutable schema versions by ID and store in registry
+
+## Key Properties
+
+ * ```schema.registry.url```
+ * ```key.serializer```
+ * ```value.serializer```
+
+# Interceptors
+
+## Security
+ * Data redaction
+ * Can be applied without changes to client code
+
+## Monitoring and Troubleshooting
+ * Inject common headers
+ * Data capture
+ * Can be applied without changes to client code
+
+# Quotas
+ * For over-quota clients, broker
+    * throttles
+    * mutes communication channel
+ * Types
+    * ```produce``` rate, bytes per second
+    * ```consume``` rate, bytes per second
+    * ```request``` percentage of time devoted on broker network and request handler threads
+ * Application
+    * default
+    * by ```client.id```, user principal or both
+ * Static setting
+    * in broker config
+        * ```quota.producer.default```
+ * Dynamic setting
+    * ```kafka.config.sh```
+    * Client Admin API
+ * Important to plan and monitor capacity on brokers since consistently over-quota clients will begin to die
+
+# Monitoring
+
+ * **JMX**
+    * ```record-error-rate```
+    * ```record-retry-rate``` some reties expected, retries impact performance
+    * ```request-latency-avg```
+    * ```outgoing-byte-rate```
+    * ```record-send-rate```
+    * ```request-rate```
+    * ```request-size-avg```
+    * ```batch-size-avg```
+    * ```records-per-second-avg```
+    * ```record-queue-time-avg``` time taken between production and sending to broker, helpful for tuning
+    * ```producer-throttle-time-avg```
+    * per broker
+        * ```request-latency-avg``` useful for spotting troubles with a particular broker
+        * others useful in troubleshooting
+    * per topic
+        * useful in troubleshooting

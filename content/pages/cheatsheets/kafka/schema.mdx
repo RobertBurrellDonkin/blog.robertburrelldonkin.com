@@ -1,0 +1,239 @@
+---
+title: Cheatsheet – Apache Kafka – Schema
+slug: "/cheatsheets/kafka/schema"
+---
+
+# Schema Evolution
+
+ * Brokers adopt ```zero-copy```
+    * key and values just **bytes**
+    * no broker-side validation
+    * key architectural advantage
+ * Producers and consumers are responsible
+ * Need
+    * data to be self-describing
+    * to manage evolution
+    * most often addressed using **schema registry** pattern
+        * separate component
+        * allows producers and consumers to know when data is invalid
+
+## Confluent Schema Registry
+ * Most usual component
+ * Apache Avro
+    * Good at evolution
+    * Binary
+    * ```avro-console-consumer```
+    * ```avro-console-producer```
+ * Producers store schemas in registry
+ * Consumers load schemas from registry
+ * Reduces message size by including ID for schema.
+ * Introduces points for failure
+ * Add maintenance
+ * Separate deployment
+ * Supported
+    * ```Avro``` **default**
+    * ```Protobuf```
+    * ```JSON schema```
+### Key Features
+ * **versioned history**
+    * **subject name strategy**
+ * **compability management**
+
+### Key Concepts
+ * **topic** message key-value pair
+ * **schema** key or value format
+    * name may differ from topic name
+    * **contract** between teams developing producers and teams developing consumers
+ * **subject** name scopes schema
+    * ```Subject Name Strategy```
+        * configured
+            * server-wise
+            * per topic
+    * **default** derived from topic name
+
+### Architecture
+ * Independent **deployment**
+ * Called from
+    * ```Producers```
+    * ```Consumers```
+ * Assigns globally unique schema ID
+    * monotonically increasing
+        * written to store
+    * not necessarily consecutive
+    * by primary node
+        * **zombie-primary** protected by batch allocation in store
+            * eg GC pause longer than ZooKeeper timeout
+                * cf. GC settings
+ * Durable schema store
+    * special topic used as highly available write log
+        * availability
+        * durability
+        * ordering
+        * recoverability
+        * should be **compacted**
+ * distributed with single primary
+    * coordinated by
+        * ZooKeeper (deprecated)
+        * Kafka (using group protocol)
+            * ```kafkastore.connection.url``` **unset**
+            * ```kafkastore.bootstrap.servers``` **set**
+    * secondary nodes
+        * **read only**
+        * forwards **writes**
+    * high availability
+        * common pattern use DNS load balancer round robin
+    * ```schema.resgistry.group.id``` used as consumer group id
+        * same for all servers in cluster
+    * ```leader.eligibility``` **true** all servers
+ * multi-datacenter
+    * one primary data center, other secondary
+        * primary
+            * **replicator** replicates active primary to secondaries
+        * secondaries
+            * ```leader.eligibility``` **false***
+
+
+### Configuration Parameters
+
+ * ```schema-registry.properties```
+
+#### Key
+ * ```kafkastore.connection.url``` **deprecated** for primary elections
+ * ```leader.eligibility```
+    * to upgrade leader election protocol
+        * set **false**
+        * rolling bounce
+        * set **true**
+        * rolling bounce
+ * ```kafkastore.bootstrap.servers``` leadership election, durable storage **set**
+ * ```listeners```
+ * ```schema.compatibility.level```
+    * ```backward``` **default** read data by latest published schema
+    * ```backward_transitive``` read data by all published schema
+    * ```none``` permits any evolution
+    * ```forward``` latest published schema can read data by new schema
+    * ```forward_transitive``` all published schema can read data by new schema
+    * ```full```  back and forward compatible latest schema
+    * ```full_transitive``` back and forward compatible all schema
+ * ```host.name``` advertised
+ * ```leader.eligibility```
+ * ```schema.resgistry.group.id```
+
+#### TLS
+ * brokers
+    * ```kafkastore.ssl.enabled.protocols```
+    * ```kafkastore.ssl.protocol```
+    * ```kafkastore.ssl.provider```
+    * key store
+        * ```kafkastore.ssl.key.password```
+        * ```kafkastore.ssl.keystore.location```
+        * ```kafkastore.ssl.keystore.type```
+        * ```kafakstore.ssl.keystore.password```
+    * trust store
+        * ```kafkastore.ssl.truststore.location```
+        * ```kafkastore.ssl.truststore.password```
+        * ```kafkastore.ssl.truststore.type```
+ * HTTPS
+    * ```ssl.protocol```
+    * ```ssl.client.auth``` **default** false
+    * ```ssl.principal.mapping.rules```
+    * key store
+        * ```ssl.keystore.location```
+        * ```ssl.keystore.type```
+        * ```ssl.keystore.password```
+        * ```ssl.key.password```
+    * trust store
+        * ```ssl.truststore.location```
+        * ```ssl.truststore.type```
+        * ```ssl.truststore.password```
+ * intra-cluster ```HTTPS```
+     * ```schema.registry.ssl.enabled.protocols```
+     * ```schema.registry.ssl.protocol```
+     * ```schema.registry.ssl.provider```
+     * key store
+        * ```schema.registry.ssl.key.password```
+        * ```schema.registry.ssl.keystore.location```
+        * ```schema.registry.ssl.keystore.type```
+        * ```schema.registry.ssl.keystore.password```
+     * trust store
+      * ```schema.registry.ssl.truststore.location```
+      * ```schema.registry.ssl.truststore.password```
+      * ```schema.registry.ssl.truststore.type```
+#### SASL
+ * ZooKeeper SASL
+    * ```zookeeper.set.acl```
+ * brokers
+    * ```kafkastore.sasl.keberos.service.name```
+    * ```kafkastore.sasl.mechanism``` **default** ```GSSAPI```
+
+#### REST API
+ * Basic Authentication
+    * ```authentication.method=BASIC```
+    * ```authentication.roles```
+    * ```authentication.realm```
+        * match ```jaas_config.file``` section
+
+#### Durable Log
+ * ```kafkastore.topic```
+    * **default** ```_schemas```
+    * **must** be compacted
+    * **configure** broker
+        * ```min.insync.replicas``` more than one
+        * ```unclean.leader.election.enable``` **false**
+ * ```kafkastore.topic.replication.factor``` fault tolerance
+    * **default** 3
+ * ```kafkastore.init.timeout.ms``` includes topic creation time
+ * ```kafkastore.security.protocol``` connecting to Kafka
+    * ```PLAINTEXT```
+    * ```SASL_PLAINTEXT```
+    * ```SSL```
+    * ```SASL_SSL```
+ * ```kafkastore.timeout.ms```
+
+#### Troubleshooting
+ * ```debug``` extra logs
+
+
+### REST API
+ * ```GET /subjects```
+ * ```GET /subjects/<name>/versions```
+ * ```GET /subjects/<name>/versions/<id>```
+ * ```GET /subjects/<name>/Versions/latest```
+
+
+# Production Considerations
+ * memory
+    * depends on unique schema versions
+    * 1GB likely enough for 10,000
+ * CPU usage
+    * light
+    * prefer more cores
+ * Disks
+    * light (logging)
+ * Network
+    * low latency, high availability, high bandwidth
+    * but normal data center fine
+    * avoid clusting over WANs, prefer multi-datacenter set up
+ * JVM
+    * Java 8 with ```G1``` collector
+
+# Monitoring
+
+ * JMX
+    * ```metrics.reporters``` add addition reports
+    * per **server**
+        * ```connections.active```
+        * ```connections.opened.rate```
+        * ```connections.closed.rate```
+        * ```master.slave.role```
+            * **0** secondary
+            * **1** primary
+    * per **endpoint**
+        * ```<endopint>.require-byte-rate```
+        * ```<endpoint>.request-error-rate```
+        * ```<endpoint>.request-latency-avg```
+        * ```<endpoint>.request-latency-max```
+
+# Data Governance
+ * ```auto.register.schemas```
+ * ```kafka-acls```
