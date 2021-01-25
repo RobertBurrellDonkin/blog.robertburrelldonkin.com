@@ -152,3 +152,31 @@ slug: "/cheatsheets/kafka/connect"
 
 ## Admin
  * REST API
+
+# Architecture
+
+ * Independent connect cluster
+    * multiple loaded connectors
+        * packaged as jar
+        * lots of open source connectors
+ * a task is connector + configuration
+ * a job may create multiple tasks
+ * Workers aka server
+    * **tasks** are executed by workers
+ * Source pulls from data source
+ * Sinks pushes into data source
+ * Small transformations along the way
+ * modes
+    * standalone
+        * single process runs connectors and tasks
+        * configuration bundled
+    * distributed
+        * multiple workers (servers)
+        * configuration submitted via REST
+        * scales horizontally
+            * automatically retrieve tasks
+        * fault tolerant
+            * when a worker dies, get a rebalance
+        * multiple tasks same connector allowed on the same worker
+        * stores offsets, status, tasks in kafka topics
+            

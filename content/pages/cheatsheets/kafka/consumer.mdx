@@ -208,3 +208,17 @@ slug: "/cheatsheets/kafka/consumer"
 ## Consumer Lag
  * **Burrow** open source tool
  * ```records-lags-max``` gives a partial view, better to use external tool
+
+# Partitioning Strategies
+ * Considerable differences when subscribing to multiple topics
+
+## RangeAssignor
+ * Aim to co-localize partitions of several topics.
+    * Useful for joining
+ * Orders consumers by **member_id** and partitions for each topic.
+ * Typically uneven distribution
+ * Default
+
+## RoundRobin
+
+
