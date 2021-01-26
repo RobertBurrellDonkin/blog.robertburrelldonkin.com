@@ -1,5 +1,18 @@
 /** @jsx jsx */
 import {jsx} from "theme-ui"
+import PropTypes from "prop-types"
+
+function TechLink(props) {
+    let {url, name} = props
+    return(
+        <a href={url}>{name}</a>
+    )
+}
+
+TechLink.propTypes = {
+    name: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired
+}
 
 export const AmazonCorretto = () => {
     return (<a href='https://aws.amazon.com/corretto/'>Amazon Corretto</a>)
@@ -43,4 +56,10 @@ export const KafkaStreams = () => {
 
 export const Kafka = () => {
     return (<a href='https://kafka.apache.org/'>Apache Kafka</a>)
+}
+
+export const Confluent = () => {
+    return (
+        <TechLink name='Confluent' url='https://www.confluent.io/'/>
+    )
 }
