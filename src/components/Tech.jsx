@@ -82,3 +82,15 @@ export const Udemy = () => {
         <TechLink name='Udemy' url='https://www.udemy.com/'/>
     )
 }
+
+export const Gatsby = () => {
+    return (
+        <TechLink name='Gatsby' url='https://www.gatsbyjs.com/'/>
+    )
+}
+
+export const ReactLink = () => {
+    return (
+        <TechLink name='React' url='https://reactjs.org/'/>
+    )
+}
