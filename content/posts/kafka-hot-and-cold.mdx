@@ -1,0 +1,19 @@
+---
+title: Kafka Clusters Hot, Kafka Clusters Cold
+date: 2021-01-16
+tags:
+ - continuing professional development
+ - kafka
+ - disaster recovery
+---
+
+Interesting post on [achieving high availability with stateful Kafka Streams applications](https://tech.transferwise.com/achieving-high-availability-with-kafka-streams/)
+
+Got me thinking about hot and cold clusters. For mission critical event stream application, I've always found that
+two duplicate clusters are worthwhile.
+
+But what about the cost...? Isn't this twice as expensive...?
+
+Well, the trick is to double up the cold clusters as disaster recovery and final testing.
+
+Not appropriate for all use cases but a trick worth remembering...
