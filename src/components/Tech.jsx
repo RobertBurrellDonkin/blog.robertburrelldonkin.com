@@ -70,3 +70,15 @@ export const LinkedIn = () => {
         <TechLink name='LinkedIn' url='https://www.linkedin.com/'/>
     )
 }
+
+export const Coursera = () => {
+    return (
+        <TechLink name='Coursera' url='https://www.coursera.org/'/>
+    )
+}
+
+export const Udemy = () => {
+    return (
+        <TechLink name='Udemy' url='https://www.udemy.com/'/>
+    )
+}
