@@ -64,3 +64,9 @@ export const Confluent = () => {
         <TechLink name='Confluent' url='https://www.confluent.io/'/>
     )
 }
+
+export const LinkedIn = () => {
+    return (
+        <TechLink name='LinkedIn' url='https://www.linkedin.com/'/>
+    )
+}
