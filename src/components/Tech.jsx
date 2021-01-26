@@ -1,11 +1,12 @@
 /** @jsx jsx */
 import {jsx} from "theme-ui"
 import PropTypes from "prop-types"
+import {ExternalLink} from "react-external-link";
 
 function TechLink(props) {
     let {url, name} = props
     return(
-        <a href={url}>{name}</a>
+        <ExternalLink href={url}>{name}</ExternalLink>
     )
 }
 
