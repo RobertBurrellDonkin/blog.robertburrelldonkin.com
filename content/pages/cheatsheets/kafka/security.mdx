@@ -53,6 +53,7 @@ slug: "/cheatsheets/kafka/security"
         * TLS expensive
             * restrict access (limits and quotas) to make DOS more difficult
             * ```connection.failed.authentication.delay.ms```
+            * Java 9+ big performance improvement for TLS over Java 8
  * **SASL**
     * authentication
  * Supported
@@ -88,6 +89,7 @@ slug: "/cheatsheets/kafka/security"
                 * secure DNS
                 * random broker passwords
                 * protect keytabs
+                * most importantly Microsoft active directory
     * options
         * ```PLAINTEXT```
         * ```SSL```
