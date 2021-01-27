@@ -115,3 +115,10 @@ export const ApacheIncubator = () => {
         <TechLink name='The Apache Incubator' url='https://incubator.apache.org/'/>
     )
 }
+
+
+export const Google = () => {
+    return (
+        <TechLink name='Google' url='https://www.google.com/'/>
+    )
+}

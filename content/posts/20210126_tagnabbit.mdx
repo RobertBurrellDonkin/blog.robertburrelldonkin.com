@@ -1,0 +1,23 @@
+---
+title: Tabnabbit!
+date: 2021-01-26
+tags:
+ - cybersecurity
+ - react
+ - html
+ - gatsby
+---
+
+import {Google, ReactLink} from "../../src/components/Tech"
+
+Ah yes, good old [tab nabbing](https://www.jitbit.com/alexblog/256-targetblank---the-most-underestimated-vulnerability-ever/).
+
+Bit of a classic. A specification mistake that's too big and wide for even <Google/> to be able to afford a [bounty](
+https://sites.google.com/site/bughunteruniversity/nonvuln/phishing-with-window-opener). A valuable lesson in humility.
+
+Now every time anyone ```a```'s a ```href``` you need to add arcane incantations to keep the linking safe. Joy.
+
+But being <ReactLink/>, there's a component for that. Probably lots but [react-external-link](https://github.com/acelaya/react-external-link)
+is the one I've adopted.
+
+And now my life is just a little bit better...
