@@ -1,0 +1,33 @@
+---
+title: Encryption in Kafka
+date: 2021-01-23
+tags:
+ - continuing professional development
+ - kafka
+---
+
+import {Kafka} from "../../src/components/Tech"
+
+Time to ponder another idea that's just a little bit crazy...
+
+Zero copy is the strategy that allows <Kafka/> brokers to perform so well under volume and load. The broker hands
+off to the operating system the business of reading each batch of messages in from the socket and out onto memory
+mapped disc.
+
+Except when TLS is enabled, zero copy is turned off. The bytes are expensively decrypted then stored onto disc.
+
+And encryption-in-flight without encryption-at-rest is a bit like Yorkshire tea without milk. So the data will
+end up being expensively transformed in user space many times.
+
+The cost is high. It boils down to TLS not being a particularly good match to this particular use case.
+
+The solution that seems to be adopted out there is message-level encryption. By clients. Which isn't ideal.
+
+Especially for small messages. Like compression, better to batch and encrypt the batch as a whole with a session key.
+And though compression before encryption may leak some information, compressing salted batches would limit the
+practicality of any crafted message attack on a high volume stream.
+
+Like schema, probably worthwhile using a central registry for key distribution. Java keystores are fiddly and
+secure distribution very definitely non-trivial especially so when you really want to rotate session keys regularly.
+
+Doable, I'd say, but not in a weekend...
