@@ -10,7 +10,7 @@ function CreditCard(props) {
         <Card variant='outlined'>
             <CardContent>
                 <Typography color='textSecondary'>
-                    {series}
+                    {series.toUpperCase()}
                 </Typography>
                 <Typography variant="h6">
                     {title}
@@ -45,7 +45,7 @@ function CreditGrid(props) {
 
 function KafkaCourses() {
     return (
-        <Box>
+        <Box p={2}>
             <Grid container spacing={2}>
                 <CreditGrid>
                     <CreditCard
