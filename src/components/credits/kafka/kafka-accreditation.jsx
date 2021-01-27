@@ -44,7 +44,7 @@ function CreditGrid(props) {
 function KafkaAccreditation() {
     return (
         <Box p={2}>
-            <Grid container spacing={2} >
+            <Grid container spacing={2}>
                 <CreditGrid>
                     <CreditCard
                         url='https://www.credential.net/f2ccede0-98d4-49ac-aac7-24fc5dc2a38f#gs.rbx7qy'
