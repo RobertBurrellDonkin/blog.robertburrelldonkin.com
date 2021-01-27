@@ -51,12 +51,26 @@ export const KSQL = () => {
     return (<a href='https://www.confluent.io/product/ksql/'>KSQL</a>)
 }
 
-export const KafkaStreams = () => {
-    return (<a href='https://kafka.apache.org/documentation/streams/'>Kafka Streams</a>)
-}
-
 export const Kafka = () => {
     return (<a href='https://kafka.apache.org/'>Apache Kafka</a>)
+}
+
+export const KafkaStreams = () => {
+    return (
+        <TechLink name='Kafka Steams' url='https://kafka.apache.org/documentation/streams/'/>
+    )
+}
+
+export const ksqlDB = () => {
+    return (
+        <TechLink name='ksqlDB' url='https://ksqldb.io/'/>
+    )
+}
+
+export const KafkaConnect = () => {
+    return (
+        <TechLink name='Kafka Connect' url='https://kafka.apache.org/documentation/#connect'/>
+    )
 }
 
 export const Confluent = () => {

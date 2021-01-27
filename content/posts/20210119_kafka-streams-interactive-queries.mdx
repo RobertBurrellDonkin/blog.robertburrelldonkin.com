@@ -1,0 +1,23 @@
+---
+title: Kafka Streams - Interactive Queries
+date: 2021-01-19
+tags:
+ - continuing professional development
+ - certification
+ - kafka
+ - kafka streams
+---
+
+import {KafkaConnect, Kafka, KafkaStreams, ksqlDB} from "../../src/components/Tech"
+
+Before starting this deep dive into <Kafka/>, I didn't really get <KafkaStreams/> or why engineers in the microservice
+space should be excited about it...
+
+Kafka Streams fits really well into the microservice paradigm. Unlike (say) <KafkaConnect/> there are no
+extra monoliths to maintain. Just microservices running streams.
+
+Interactive queries for streams strike me as an interesting idea but don't yet feel entirely finished. The general
+idea is to build a stateful topology then query the state stores for the latest analysis. Sounds workable but the
+fault tolerance fiddly to maintain for the moment.
+
+I'll be interested to follow this approach as it matures...
