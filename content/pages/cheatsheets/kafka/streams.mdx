@@ -572,3 +572,58 @@ slug: "/cheatsheets/kafka/streams"
     * rate of production limited by per stream thread cache size
     * **record cache** space allows de-duplication of values in nearby offsets
 
+# Development
+
+## Cleaning Up
+
+Useful in dev
+
+```
+    streams.cleanup
+```
+
+## Shutdown
+
+Always close streams gracefully on shutdown
+
+```
+        final KafkaStreams streams = new KafkaStreams(topology, config);
+//        streams.start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+```
+
+## Log Topology
+
+Always print out topology right at the start of the application so it's available in the logs
+```
+
+
+        StreamsBuilder builder = new StreamsBuilder();
+
+        ...
+
+        Topology topology = builder.build();
+
+        logger.info("TOPOLOGY: {}", topology.describe());
+```
+
+## Test Utils
+
+ * Allows testing of the topology without the need for a live Kafka
+ * Look up spring embedded kafka
+ * Really important to call close on topology test driver
+
+## Intentional Set Deserialization Behaviour
+
+ * Kafka streams defaults to stopping on a deserialization failure
+ * Best practice to intentionally set behaviour to avoid doubt and improve easy reading.
+ * https://medium.com/@iamtrk/kafka-streams-deserialization-error-handling-d7ae197c4d38
+
+## POJOs
+
+Streams is strongly typed in Java using generics. If you want to avoid POJOs for example, since the data may be messy
+or you're experimenting but don't want to pay the cost of adding serialization code, you could type as Json Node
+and the use the serializers from connect.
+
+Pojo serializers aren't that tough.
