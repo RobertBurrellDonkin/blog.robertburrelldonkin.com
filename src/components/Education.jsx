@@ -17,6 +17,13 @@ export const Warwick = (props) => {
     )
 }
 
+
+export const Manchester = (props) => {
+    return(
+        <UniLink url='https://www.manchester.ac.uk/' name='University of Manchester'>{props.children}</UniLink>
+    )
+}
+
 export const Maths = (props) => {
     return(
         <UniLink url='https://warwick.ac.uk/fac/sci/maths/' name='Maths Institute'>{props.children}</UniLink>
