@@ -1,7 +1,28 @@
 /** @jsx jsx */
 import {jsx} from "theme-ui"
+import React from "react"
 import PropTypes from "prop-types"
 import {ExternalLink} from "react-external-link";
+import {Tooltip} from "@material-ui/core";
+import TrendingUpIcon from '@material-ui/icons/TrendingUp';
+
+function Acronym(props) {
+    let {url, long, short} = props
+    return(
+        <React.Fragment>
+            <Tooltip title={long}>
+                <span>{short}</span>
+            </Tooltip>
+            <ExternalLink href={url}><TrendingUpIcon/></ExternalLink>
+        </React.Fragment>
+    )
+}
+
+Acronym.propTypes = {
+    long: PropTypes.string.isRequired,
+    short: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired
+}
 
 function TechLink(props) {
     let {url, name} = props
@@ -120,5 +141,17 @@ export const ApacheIncubator = () => {
 export const Google = () => {
     return (
         <TechLink name='Google' url='https://www.google.com/'/>
+    )
+}
+
+export const CCOAK = () => {
+    return (
+        <Acronym long='Confluent Certified Operator for Apache Kafka' short='CCOAK' url='https://www.confluent.io/certification/'/>
+    )
+}
+
+export const CCDAK = () => {
+    return (
+        <Acronym long='Confluent Certified Developer for Apache Kafka' short='CCDAK' url='https://www.confluent.io/certification/'/>
     )
 }
