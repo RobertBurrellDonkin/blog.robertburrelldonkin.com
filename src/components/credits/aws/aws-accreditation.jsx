@@ -43,24 +43,15 @@ function CreditGrid(props) {
 
 function AwsAccreditation() {
     return (
-        <Box p={2}>
+        <Box p={2}  bgcolor="primary.main">
             <Grid container spacing={2}>
                 <CreditGrid>
                     <CreditCard
-                        url='https://www.credential.net/f2ccede0-98d4-49ac-aac7-24fc5dc2a38f#gs.rbx7qy'
-                        name='Confluent Certified Developer for Apache Kafka'
-                        issued='January 25, 2021'
-                        expires='January 25, 2023'
+                        url='https://www.youracclaim.com/badges/31469bc7-b88c-4281-8435-fe6b256c43a8/linked_in_profile'
+                        name='AWS Certified Cloud Practitioner'
+                        issued='8 July 2020'
+                        expires='8 July 2023'
                     />
-                </CreditGrid>
-                <CreditGrid>
-                    <CreditCard
-                        url='https://www.credential.net/07d2ce07-cda7-4349-8f3d-d6fee53ee6ba#gs.rc0qzi'
-                        name='Accredited - Confluent Fundamentals for Apache Kafka'
-                        issued='November 23, 2020'
-                        expires='Never'
-                    />
-
                 </CreditGrid>
             </Grid>
         </Box>
