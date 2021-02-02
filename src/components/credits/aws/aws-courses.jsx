@@ -85,6 +85,14 @@ function Essentials() {
                         issued='22nd Nov 2020'
                     />
                 </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/verify/BZCA9R7AGSXM'
+                        series='AWS Fundamentals Specialization'
+                        title='AWS Fundamentals: Addressing Security Risk'
+                        issued='22nd Nov 2020'
+                    />
+                </CreditGrid>
             </Grid>
         </Box>
     )
