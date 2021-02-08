@@ -50,69 +50,24 @@ function CreditTitle(props) {
     )
 }
 
-function CreditSubTitle(props) {
-    let {title} = props
-    return (
-        <Grid item xs={12}>
-            <Typography variant='h5' color='textSecondary'>
-                {title.toUpperCase()}
-            </Typography>
-        </Grid>
-    )
-}
-
 CreditTitle.propTypes = {
     title: PropTypes.string.isRequired
 }
 
-function Development() {
+function Scala() {
     return (
         <Box p={2}>
             <Grid container spacing={2}>
-                <CreditTitle title='Cloud Development'/>
+                <CreditTitle title='Functional Programming in Scala Specialization'/>
                 <CreditGrid>
                     <CreditCard
-                        url='https://www.coursera.org/account/accomplishments/verify/HN7NC326SDYN'
-                        series='Amazon Web Services'
-                        title='Building Containerized Applications on AWS'
-                        issued='16th Nov 2020'
+                        url='https://www.coursera.org/account/accomplishments/verify/MMSCPD25E488'
+                        series='Functional Programming in Scala Specialization'
+                        title='Functional Programming Principles in Scala'
+                        issued='7th Feb 2020'
                     />
                 </CreditGrid>
-            </Grid>
-        </Box>
-    )
-}
 
-function Essentials() {
-    return (
-        <Box p={2}>
-            <Grid container spacing={2}>
-                <CreditTitle title='Essentials'/>
-                <CreditSubTitle title='AWS Fundamentals Specialization'/>
-                <CreditGrid>
-                    <CreditCard
-                        url='https://www.coursera.org/account/accomplishments/verify/YAQNN3X4PMXK'
-                        series='AWS Fundamentals Specialization'
-                        title='AWS Fundamentals: Going Cloud-Native'
-                        issued='31st Jan 2020'
-                    />
-                </CreditGrid>
-                <CreditGrid>
-                    <CreditCard
-                        url='https://www.coursera.org/account/accomplishments/verify/BZCA9R7AGSXM'
-                        series='AWS Fundamentals Specialization'
-                        title='AWS Fundamentals: Addressing Security Risk'
-                        issued='2nd Feb 2021'
-                    />
-                </CreditGrid>
-                <CreditGrid>
-                    <CreditCard
-                        url='https://www.coursera.org/account/accomplishments/verify/HDWLSYEBCV8L'
-                        series='AWS Fundamentals Specialization'
-                        title='AWS Fundamentals: Migrating to the Cloud'
-                        issued='5th Feb 2021'
-                    />
-                </CreditGrid>
             </Grid>
         </Box>
     )
@@ -121,8 +76,7 @@ function Essentials() {
 function ScalaCourses() {
     return (
         <Box>
-            <Development/>
-            <Essentials/>
+            <Scala/>
         </Box>
     )
 }
