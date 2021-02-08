@@ -50,13 +50,24 @@ function CreditTitle(props) {
     )
 }
 
+function CreditSubTitle(props) {
+    let {title} = props
+    return (
+        <Grid item xs={12}>
+            <Typography variant='h5' color='textSecondary'>
+                {title.toUpperCase()}
+            </Typography>
+        </Grid>
+    )
+}
+
 CreditTitle.propTypes = {
     title: PropTypes.string.isRequired
 }
 
 function Development() {
     return (
-        <Box p={2} bgcolor="info.main">
+        <Box p={2}>
             <Grid container spacing={2}>
                 <CreditTitle title='Cloud Development'/>
                 <CreditGrid>
@@ -77,12 +88,13 @@ function Essentials() {
         <Box p={2}>
             <Grid container spacing={2}>
                 <CreditTitle title='Essentials'/>
+                <CreditSubTitle title='AWS Fundamentals Specialization'/>
                 <CreditGrid>
                     <CreditCard
                         url='https://www.coursera.org/account/accomplishments/verify/YAQNN3X4PMXK'
                         series='AWS Fundamentals Specialization'
                         title='AWS Fundamentals: Going Cloud-Native'
-                        issued='22nd Nov 2020'
+                        issued='31st Jan 2020'
                     />
                 </CreditGrid>
                 <CreditGrid>
@@ -90,7 +102,15 @@ function Essentials() {
                         url='https://www.coursera.org/account/accomplishments/verify/BZCA9R7AGSXM'
                         series='AWS Fundamentals Specialization'
                         title='AWS Fundamentals: Addressing Security Risk'
-                        issued='22nd Nov 2020'
+                        issued='2nd Feb 2021'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/verify/HDWLSYEBCV8L'
+                        series='AWS Fundamentals Specialization'
+                        title='AWS Fundamentals: Migrating to the Cloud'
+                        issued='5th Feb 2021'
                     />
                 </CreditGrid>
             </Grid>
