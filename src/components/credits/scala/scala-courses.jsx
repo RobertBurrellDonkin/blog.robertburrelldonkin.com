@@ -33,7 +33,7 @@ CreditCard.propTypes = {
 function CreditGrid(props) {
     let {children} = props
     return (
-        <Grid item xs={6}>
+        <Grid item xs={12}>
             {children}
         </Grid>
     )
@@ -43,7 +43,7 @@ function CreditTitle(props) {
     let {title} = props
     return (
         <Grid item xs={12}>
-            <Typography variant='h4' color='textSecondary'>
+            <Typography variant='h5' color='textSecondary'>
                 {title.toUpperCase()}
             </Typography>
         </Grid>
