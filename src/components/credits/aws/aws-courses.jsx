@@ -57,6 +57,7 @@ function CreditSubTitle(props) {
             <Typography variant='h5' color='textSecondary'>
                 {title.toUpperCase()}
             </Typography>
+            {props.children}
         </Grid>
     )
 }
@@ -106,20 +107,27 @@ function Essentials() {
         <Box p={2}>
             <Grid container spacing={2}>
                 <CreditTitle title='Essentials'/>
-                <CreditSubTitle title='AWS Fundamentals Specialization'/>
+                <CreditSubTitle title='AWS Fundamentals Specialization'>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/specialization/9TNT78M7DZMW'
+                        series='COMPLETE'
+                        title='AWS Fundamentals Specialization'
+                        issued='19th Feb 2021'
+                    />
+                </CreditSubTitle>
                 <CreditGrid>
                     <CreditCard
                         url='https://www.coursera.org/account/accomplishments/verify/YAQNN3X4PMXK'
                         series='AWS Fundamentals Specialization'
-                        title='AWS Fundamentals: Going Cloud-Native'
-                        issued='31st Jan 2020'
+                        title='Going Cloud-Native'
+                        issued='31st Jan 2021'
                     />
                 </CreditGrid>
                 <CreditGrid>
                     <CreditCard
                         url='https://www.coursera.org/account/accomplishments/verify/BZCA9R7AGSXM'
                         series='AWS Fundamentals Specialization'
-                        title='AWS Fundamentals: Addressing Security Risk'
+                        title='Addressing Security Risk'
                         issued='2nd Feb 2021'
                     />
                 </CreditGrid>
@@ -127,8 +135,16 @@ function Essentials() {
                     <CreditCard
                         url='https://www.coursera.org/account/accomplishments/verify/HDWLSYEBCV8L'
                         series='AWS Fundamentals Specialization'
-                        title='AWS Fundamentals: Migrating to the Cloud'
+                        title='Migrating to the Cloud'
                         issued='5th Feb 2021'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/verify/XHYWHNCB8VW3'
+                        series='AWS Fundamentals Specialization'
+                        title='Building Serverless Applications'
+                        issued='19th Feb 2021'
                     />
                 </CreditGrid>
             </Grid>
