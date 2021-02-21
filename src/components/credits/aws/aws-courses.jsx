@@ -83,6 +83,24 @@ function Development() {
     )
 }
 
+function Security() {
+    return (
+        <Box p={2}>
+            <Grid container spacing={2}>
+                <CreditTitle title='Cloud Security'/>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/verify/WZUKT25NRCGM'
+                        series='Amazon Web Services'
+                        title='Introduction to AWS Identity and Access Management'
+                        issued='18th Feb 2021'
+                    />
+                </CreditGrid>
+            </Grid>
+        </Box>
+    )
+}
+
 function Essentials() {
     return (
         <Box p={2}>
@@ -121,6 +139,7 @@ function Essentials() {
 function AwsCourses() {
     return (
         <Box>
+            <Security/>
             <Development/>
             <Essentials/>
         </Box>
