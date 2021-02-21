@@ -47,6 +47,15 @@ function AwsAccreditation() {
             <Grid container spacing={2}>
                 <CreditGrid>
                     <CreditCard
+                        url='https://youracclaim.com/badges/e429e2a8-833b-4d8b-903f-8e06acb88db9'
+                        name='AWS Certified Solutions Architect – Associate'
+                        issued='20 February 2021'
+                        expires='20 February 2024'
+                    />
+                </CreditGrid>
+                // []()
+                <CreditGrid>
+                    <CreditCard
                         url='https://www.youracclaim.com/badges/31469bc7-b88c-4281-8435-fe6b256c43a8/linked_in_profile'
                         name='AWS Certified Cloud Practitioner'
                         issued='8 July 2020'
