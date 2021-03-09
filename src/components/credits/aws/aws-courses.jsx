@@ -78,11 +78,21 @@ function Development() {
                         title='Building Containerized Applications on AWS'
                         issued='16th Nov 2020'
                     />
+                </CreditGrid>
+                <CreditGrid>
                     <CreditCard
                         url='https://www.coursera.org/account/accomplishments/certificate/7JAFQT4CDBBZ'
                         series='Amazon Web Services'
                         title='AWS IoT: Developing and Deploying an Internet of Things'
                         issued='6th Mar 2021'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/certificate/S2Z38KVP9VP8'
+                        series='Amazon Web Services'
+                        title='Amazon DynamoDB: Building NoSQL Database-Driven Applications'
+                        issued='1st Mar 2021'
                     />
                 </CreditGrid>
             </Grid>
