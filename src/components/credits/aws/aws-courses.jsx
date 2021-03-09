@@ -100,6 +100,24 @@ function Development() {
     )
 }
 
+function DevOps() {
+    return (
+        <Box p={2}>
+            <Grid container spacing={2}>
+                <CreditTitle title='Cloud Engineering'/>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.udemy.com/certificate/UC-799216a0-748b-40a3-a817-903e0ae75d8c/'
+                        series='Amazon Web Services'
+                        title='AWS CloudFormation Master Class'
+                        issued='3rd Mar 2021'
+                    />
+                </CreditGrid>
+            </Grid>
+        </Box>
+    )
+}
+
 function Security() {
     return (
         <Box p={2}>
@@ -173,6 +191,7 @@ function AwsCourses() {
         <Box>
             <Security/>
             <Development/>
+            <DevOps/>
             <Essentials/>
         </Box>
     )
