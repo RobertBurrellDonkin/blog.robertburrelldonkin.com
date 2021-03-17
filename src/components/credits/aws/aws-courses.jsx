@@ -95,10 +95,20 @@ function Development() {
                         issued='1st Mar 2021'
                     />
                 </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/verify/PJDDFH59ZZMB'
+                        series='Amazon Web Services'
+                        title='Building Modern Python Applications on AWS'
+                        issued='12th Mar 2021'
+                    />
+                </CreditGrid>
             </Grid>
         </Box>
     )
 }
+
+
 
 function DevOps() {
     return (

@@ -63,6 +63,14 @@ function AwsAccreditation() {
                 </CreditGrid>
                 <CreditGrid>
                     <CreditCard
+                        url='https://www.youracclaim.com/badges/727ca4b2-2315-4b7e-b9d7-071e5363c271'
+                        name='AWS Certified SysOps Administrator – Associate'
+                        issued='16 March 2021'
+                        expires='16 March 2024'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
                         url='https://www.youracclaim.com/badges/31469bc7-b88c-4281-8435-fe6b256c43a8/linked_in_profile'
                         name='AWS Certified Cloud Practitioner'
                         issued='8 July 2020'
