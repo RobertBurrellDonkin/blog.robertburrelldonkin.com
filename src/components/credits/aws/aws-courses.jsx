@@ -111,6 +111,14 @@ function Development() {
                         issued='23rd Mar 2021'
                     />
                 </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.udemy.com/certificate/UC-99098a36-8c66-470c-ac05-43c417a5f0df/'
+                        series='Amazon Web Services'
+                        title='Amazon ECS & Fargate - Docker on AWS Master Class'
+                        issued='22rd Mar 2021'
+                    />
+                </CreditGrid>
             </Grid>
         </Box>
     )
