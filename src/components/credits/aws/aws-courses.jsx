@@ -103,6 +103,14 @@ function Development() {
                         issued='12th Mar 2021'
                     />
                 </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/verify/BS3PSPLCKT5T'
+                        series='Amazon Web Services'
+                        title='Introduction to Designing Data Lakes on AWS'
+                        issued='23rd Mar 2021'
+                    />
+                </CreditGrid>
             </Grid>
         </Box>
     )
