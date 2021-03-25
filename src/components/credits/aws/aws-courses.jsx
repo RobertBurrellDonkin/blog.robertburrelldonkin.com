@@ -57,6 +57,7 @@ function CreditSubTitle(props) {
             <Typography variant='h5' color='textSecondary'>
                 {title.toUpperCase()}
             </Typography>
+            {props.children}
         </Grid>
     )
 }
@@ -78,6 +79,84 @@ function Development() {
                         issued='16th Nov 2020'
                     />
                 </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/certificate/7JAFQT4CDBBZ'
+                        series='Amazon Web Services'
+                        title='AWS IoT: Developing and Deploying an Internet of Things'
+                        issued='6th Mar 2021'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/certificate/S2Z38KVP9VP8'
+                        series='Amazon Web Services'
+                        title='Amazon DynamoDB: Building NoSQL Database-Driven Applications'
+                        issued='1st Mar 2021'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/verify/PJDDFH59ZZMB'
+                        series='Amazon Web Services'
+                        title='Building Modern Python Applications on AWS'
+                        issued='12th Mar 2021'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/verify/BS3PSPLCKT5T'
+                        series='Amazon Web Services'
+                        title='Introduction to Designing Data Lakes on AWS'
+                        issued='23rd Mar 2021'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.udemy.com/certificate/UC-99098a36-8c66-470c-ac05-43c417a5f0df/'
+                        series='Amazon Web Services'
+                        title='Amazon ECS & Fargate - Docker on AWS Master Class'
+                        issued='22rd Mar 2021'
+                    />
+                </CreditGrid>
+            </Grid>
+        </Box>
+    )
+}
+
+
+
+function DevOps() {
+    return (
+        <Box p={2}>
+            <Grid container spacing={2}>
+                <CreditTitle title='Cloud Engineering'/>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.udemy.com/certificate/UC-799216a0-748b-40a3-a817-903e0ae75d8c/'
+                        series='Amazon Web Services'
+                        title='AWS CloudFormation Master Class'
+                        issued='3rd Mar 2021'
+                    />
+                </CreditGrid>
+            </Grid>
+        </Box>
+    )
+}
+
+function Security() {
+    return (
+        <Box p={2}>
+            <Grid container spacing={2}>
+                <CreditTitle title='Cloud Security'/>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/verify/WZUKT25NRCGM'
+                        series='Amazon Web Services'
+                        title='Introduction to AWS Identity and Access Management'
+                        issued='18th Feb 2021'
+                    />
+                </CreditGrid>
             </Grid>
         </Box>
     )
@@ -88,20 +167,27 @@ function Essentials() {
         <Box p={2}>
             <Grid container spacing={2}>
                 <CreditTitle title='Essentials'/>
-                <CreditSubTitle title='AWS Fundamentals Specialization'/>
+                <CreditSubTitle title='AWS Fundamentals Specialization'>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/specialization/9TNT78M7DZMW'
+                        series='COMPLETE'
+                        title='AWS Fundamentals Specialization'
+                        issued='19th Feb 2021'
+                    />
+                </CreditSubTitle>
                 <CreditGrid>
                     <CreditCard
                         url='https://www.coursera.org/account/accomplishments/verify/YAQNN3X4PMXK'
                         series='AWS Fundamentals Specialization'
-                        title='AWS Fundamentals: Going Cloud-Native'
-                        issued='31st Jan 2020'
+                        title='Going Cloud-Native'
+                        issued='31st Jan 2021'
                     />
                 </CreditGrid>
                 <CreditGrid>
                     <CreditCard
                         url='https://www.coursera.org/account/accomplishments/verify/BZCA9R7AGSXM'
                         series='AWS Fundamentals Specialization'
-                        title='AWS Fundamentals: Addressing Security Risk'
+                        title='Addressing Security Risk'
                         issued='2nd Feb 2021'
                     />
                 </CreditGrid>
@@ -109,8 +195,16 @@ function Essentials() {
                     <CreditCard
                         url='https://www.coursera.org/account/accomplishments/verify/HDWLSYEBCV8L'
                         series='AWS Fundamentals Specialization'
-                        title='AWS Fundamentals: Migrating to the Cloud'
+                        title='Migrating to the Cloud'
                         issued='5th Feb 2021'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.coursera.org/account/accomplishments/verify/XHYWHNCB8VW3'
+                        series='AWS Fundamentals Specialization'
+                        title='Building Serverless Applications'
+                        issued='19th Feb 2021'
                     />
                 </CreditGrid>
             </Grid>
@@ -121,7 +215,9 @@ function Essentials() {
 function AwsCourses() {
     return (
         <Box>
+            <Security/>
             <Development/>
+            <DevOps/>
             <Essentials/>
         </Box>
     )
