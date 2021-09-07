@@ -1,0 +1,203 @@
+I had been using YubiKey hardware to sign GitHub commits. The key has now expired.
+
+https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP
+
+I'll give generating the key on the hardware a go, I think.
+
+For the GitHub use case, should the hardware become unusable, I'll just generate another key then upload. Whereas if the
+key leaks then a bad actor might be able to submarine commits into my stream.
+
+I also feel less inclined to set up yet more long term secure storage.
+
+Let's give it a go, then.
+
+RSA or ECC. Not sure an easy choice anymore. In a bit of a rush and don't feel inclined to see whether GitHub supports
+the same EC encryption as YubiKey. RSA 4096 it is, then.
+
+Drat. Bad PIN. Blocked.
+
+Used ```ykman openpgp access set-retries 10 10 10```. On a Mac ykman is available from homebrew.
+
+One bit of the process that needs particular care is there are admin and user PINs. I blocked the PIN by getting confused
+between them. Need to take care to read which PIN is to be entered.
+
+No errors this time.
+
+pg: key E5EE91A2C8548F7C marked as ultimately trusted
+gpg: revocation certificate stored as '/Users/rd/.gnupg/openpgp-revocs.d/897F45BB71291E820BCE8A1BE5EE91A2C8548F7C.rev'
+public and secret key created and signed.
+
+
+
+gpg/card> list
+
+Reader ...........: Yubico YubiKey OTP FIDO CCID
+Application ID ...: D2760001240100000006104622910000
+Application type .: OpenPGP
+Version ..........: 0.0
+Manufacturer .....: Yubico
+Serial number ....: 10462291
+Name of cardholder: [not set]
+Language prefs ...: [not set]
+Salutation .......:
+URL of public key : [not set]
+Login data .......: [not set]
+Signature PIN ....: not forced
+Key attributes ...: rsa4096 rsa4096 rsa4096
+Max. PIN lengths .: 127 127 127
+PIN retry counter : 10 10 10
+Signature counter : 4
+KDF setting ......: off
+UIF setting ......: Sign=off Decrypt=off Auth=off
+Signature key ....: 897F 45BB 7129 1E82 0BCE  8A1B E5EE 91A2 C854 8F7C
+created ....: 2021-09-07 17:16:09
+Encryption key....: 7733 258D F9F1 B03C BB35  DCD9 80F9 EB23 5693 50B3
+created ....: 2021-09-07 17:16:09
+Authentication key: 1C5A A1C9 5235 E972 A8EA  28AA FA3B 2D25 EAC5 1CF0
+created ....: 2021-09-07 17:16:09
+General key info..:
+pub  rsa4096/E5EE91A2C8548F7C 2021-09-07 Robert Burrell Donkin (Git Commit Signing Key) <107208+RobertBurrellDonkin@users.noreply.github.com>
+sec>  rsa4096/E5EE91A2C8548F7C  created: 2021-09-07  expires: 2022-09-07
+card-no: 0006 10462291
+ssb>  rsa4096/FA3B2D25EAC51CF0  created: 2021-09-07  expires: 2022-09-07
+card-no: 0006 10462291
+ssb>  rsa4096/80F9EB23569350B3  created: 2021-09-07  expires: 2022-09-07
+card-no: 0006 10462291
+
+gpg/card> quit
+pub   rsa4096 2021-09-07 [SC] [expires: 2022-09-07]
+897F45BB71291E820BCE8A1BE5EE91A2C8548F7C
+uid                      Robert Burrell Donkin (Git Commit Signing Key) <107208+RobertBurrellDonkin@users.noreply.github.com>
+sub   rsa4096 2021-09-07 [A] [expires: 2022-09-07]
+sub   rsa4096 2021-09-07 [E] [expires: 2022-09-07]
+
+Let's see whether this will work with git
+
+rd@RBDOnMac lite-rx-api-hands-on % git config --list
+credential.helper=osxkeychain
+user.email=107208+RobertBurrellDonkin@users.noreply.github.com
+user.name=Robert Burrell Donkin
+user.signingkey=6C5D3BC25E59D6A4
+gpg.program=gpg
+commit.gpgsign=true
+credential.helper=osxkeychain
+core.repositoryformatversion=0
+core.filemode=true
+core.bare=false
+core.logallrefupdates=true
+core.ignorecase=true
+core.precomposeunicode=true
+remote.origin.url=git@github.com:RobertBurrellDonkin/lite-rx-api-hands-on.git
+remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+branch.master.remote=origin
+branch.master.merge=refs/heads/master
+
+
+rd@RBDOnMac lite-rx-api-hands-on % git config --global user.signingkey E5EE91A2C8548F7C
+
+Good let's see whether the signature looks good
+
+rd@RBDOnMac lite-rx-api-hands-on %  git log --show-signature
+commit eb33da06ed81b7fd7f598c86ddfd06fb49a75abd (HEAD -> master)
+gpg: Signature made Tue  7 Sep 18:28:39 2021 BST
+gpg:                using RSA key 897F45BB71291E820BCE8A1BE5EE91A2C8548F7C
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   3  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 3u
+gpg: next trustdb check due at 2022-09-07
+gpg: Good signature from "Robert Burrell Donkin (Git Commit Signing Key) <107208+RobertBurrellDonkin@users.noreply.github.com>" [ultimate]
+Author: Robert Burrell Donkin <107208+RobertBurrellDonkin@users.noreply.github.com>
+Date:   Tue Sep 7 18:28:26 2021 +0100
+
+    Completed Flux exercise
+
+Note that I failed to keep a copy of the old public key. Never mind.
+
+The generated public key is stored in the local machine's keyring, rather than the hardware.
+
+rd@RBDOnMac lite-rx-api-hands-on % gpg --export --armor 897F45BB71291E820BCE8A1BE5EE91A2C8548F7C
+
+Add the result to GitHub.
+
+git push
+
+and the commit has been verified. Great.
+
+I'll need to upload the public key to a public keyserver. Or just park it on my blog.
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+=FI81
+-----END PGP PUBLIC KEY BLOCK-----
