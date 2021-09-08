@@ -3,6 +3,22 @@ import {Box, Card, CardActions, CardContent, Grid, Typography} from "@material-u
 import Verify from "../verify"
 import PropTypes from "prop-types"
 
+function CreditTitle(props) {
+    let {title} = props
+    return (
+        <Grid item xs={12}>
+            <Typography variant='h5' color='textSecondary' >
+                {title.toUpperCase()}
+            </Typography>
+        </Grid>
+    )
+}
+
+CreditTitle.propTypes = {
+    title: PropTypes.string.isRequired
+}
+
+
 function CreditCard(props) {
     let {url, name, issued, expires} = props
     return (
@@ -33,18 +49,50 @@ CreditCard.propTypes = {
 }
 
 function CreditGrid(props) {
-    let {children} = props
+    let {children, full} = props
+    let xs = 6
+    if (full) {
+        xs = 12
+    }
     return (
-        <Grid item xs={6}>
+        <Grid item xs={xs}>
             {children}
         </Grid>
     )
 }
 
+CreditGrid.propTypes = {
+    full: PropTypes.bool
+}
+
 function AwsAccreditation() {
     return (
-        <Box p={2}  bgcolor="primary.main">
+        <Box p={2}>
             <Grid container spacing={2}>
+                <CreditTitle title='Professional'/>
+                <CreditGrid full={true}>
+                    <CreditCard
+                        url='https://www.credly.com/badges/c8f92809-c0d1-447c-9659-8da4cbadbdb1'
+                        name='AWS Certified DevOps Engineer – Professional'
+                        issued='31 August 2021'
+                        expires='31 August 2024'
+                    />
+                </CreditGrid>
+            </Grid>
+            <Grid container spacing={2}>
+                <CreditTitle title='Speciality'/>
+                <CreditGrid full={true}>
+                    <CreditCard
+                        url='https://www.credly.com/badges/575d155f-010d-41dc-8e82-75b7618d6795'
+                        name='AWS Certified Security – Specialty'
+                        issued='11 August 2021'
+                        expires='11 August 2024'
+                    />
+                </CreditGrid>
+
+            </Grid>
+            <Grid container spacing={2}>
+                <CreditTitle title='Associate'/>
                 <CreditGrid>
                     <CreditCard
                         url='https://youracclaim.com/badges/e429e2a8-833b-4d8b-903f-8e06acb88db9'
@@ -61,7 +109,7 @@ function AwsAccreditation() {
                         expires='07 March 2024'
                     />
                 </CreditGrid>
-                <CreditGrid>
+                <CreditGrid full={true}>
                     <CreditCard
                         url='https://www.youracclaim.com/badges/727ca4b2-2315-4b7e-b9d7-071e5363c271'
                         name='AWS Certified SysOps Administrator – Associate'
@@ -69,7 +117,10 @@ function AwsAccreditation() {
                         expires='16 March 2024'
                     />
                 </CreditGrid>
-                <CreditGrid>
+            </Grid>
+            <Grid container spacing={2}>
+                <CreditTitle title='Foundational'/>
+                <CreditGrid full={true}>
                     <CreditCard
                         url='https://www.youracclaim.com/badges/31469bc7-b88c-4281-8435-fe6b256c43a8/linked_in_profile'
                         name='AWS Certified Cloud Practitioner'
