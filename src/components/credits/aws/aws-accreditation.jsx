@@ -47,6 +47,22 @@ function AwsAccreditation() {
             <Grid container spacing={2}>
                 <CreditGrid>
                     <CreditCard
+                        url='https://www.credly.com/badges/c8f92809-c0d1-447c-9659-8da4cbadbdb1'
+                        name='AWS Certified DevOps Engineer – Professional'
+                        issued='31 August 2021'
+                        expires='31 August 2024'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
+                        url='https://www.credly.com/badges/575d155f-010d-41dc-8e82-75b7618d6795'
+                        name='AWS Certified Security – Specialty'
+                        issued='11 August 2021'
+                        expires='11 August 2024'
+                    />
+                </CreditGrid>
+                <CreditGrid>
+                    <CreditCard
                         url='https://youracclaim.com/badges/e429e2a8-833b-4d8b-903f-8e06acb88db9'
                         name='AWS Certified Solutions Architect – Associate'
                         issued='20 February 2021'
