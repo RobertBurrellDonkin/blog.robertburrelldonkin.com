@@ -1,0 +1,26 @@
+---
+title: "One Reason Why Reactive Matters for Java"
+date: 2021-08-20
+tags:
+ - java
+ - reactive
+---
+
+Reactive is awesome, right...? Everyone's knows reactive a bandwagon we should jump on to, right...?
+
+I've done message driven systems for most of the last couple of decades so obvious
+I agree that reactive matters a lot for Java but we should acknowledge that business stakeholders have every right
+to ask for a little bit more detail that just "awesome coolness".
+
+I find concrete examples are often useful. You deploy a blocking microservice. Now you want to scale elastically to
+meet consumer demand. Response latency getting longer and longer until the microservice is no
+longer responsive. But response looks fine. Network looks fine. What's wrong...?
+
+Well, with blocking Java using a basic operating system metric - networking, CPU and so on - may not be useful for
+elastic scalability. And virtual machines rarely expose.
+
+So you'll need to code some custom fool.
+
+
+
+
