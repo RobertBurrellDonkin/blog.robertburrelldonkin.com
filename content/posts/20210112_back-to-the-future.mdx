@@ -1,0 +1,30 @@
+---
+title: "Back to The Future"
+date: 2021-01-12
+tags:
+ - microservices
+---
+
+Now that solutions with hundreds of microservices are not uncommon, *observability* has now become quite a *big thing*.
+
+It's sometimes said to CompSci students that the final code delivered should always be free of debugging statements.
+
+Back in my Apache Days, before great Java IDEs and debuggers, I spent a lot of time coding using plain text editors
+and using extra print statements to debug.
+
+For open source libraries, every user pays the price for logging. As a library author, I think the best practice is to
+include only logging statements that contribution to comprehension.
+
+But for microservices, I preach from another Gospel. Always leave in logging statements after debugging but turn them
+down to ```trace``` or ```debug```.
+
+But why...?
+
+Libraries are called within the same process. Latency is low. Any library user who needs more detailed logging has the
+option to fork - or use aspect oriented programming. But users who need high performance may not be able to live
+with the additional overhead of logging in the golden path.
+
+Microservices are called over the network. In relative terms, unused logging statements are orders of magnitude
+quicker than even the quickest network operation. The performance tradeoff is quite different in this case.
+
+And for microservices, observability is so critical for reliable operation. 
