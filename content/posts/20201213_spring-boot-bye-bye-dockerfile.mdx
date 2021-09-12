@@ -1,0 +1,34 @@
+---
+title: "Spring Boot: Bye Bye Dockerfile"
+date: 2020-12-13
+tags:
+ - spring boot
+ - docker
+ - buildpacks
+---
+Spring Boot ```2.3``` brought [buildpacks](https://buildpacks.io/). Which is quietly quite a big thing for microservices.
+
+A couple of decades ago, back in my Apache Days, I remember the energy and effort around Jakarta when Maven brought
+the idea of declarative tooling into focus in the Java world. Maybe I'll say more on
+this later but Maven pushed software development up into the next gear.
+
+Now I hope with buildpacks we may be about to see something similar.
+
+No more ```Dockerfile``` to maintain. No more research on which particular base image is the best. Just add a plugin
+and allow ```Spring Boot``` to take care of those details.
+
+```
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-image</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+```
+
+I'm all smiles.
