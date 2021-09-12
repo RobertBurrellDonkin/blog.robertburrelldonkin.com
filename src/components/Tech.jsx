@@ -36,6 +36,16 @@ TechLink.propTypes = {
     url: PropTypes.string.isRequired
 }
 
+export const Swagger = () => {
+    return (<TechLink name='Swagger' url='https://swagger.io/'/>)
+}
+
+export const AWS = () => {
+    return (
+        <TechLink name='AWS!!' url='https://aws.amazon.com/'/>
+    )
+}
+
 export const AmazonCorretto = () => {
     return (<a href='https://aws.amazon.com/corretto/'>Amazon Corretto</a>)
 }
@@ -144,6 +154,12 @@ export const Google = () => {
     )
 }
 
+export const Splunk = () => {
+    return (
+        <TechLink name='Splunk' url='https://www.splunk.com/'/>
+    )
+}
+
 export const CCOAK = () => {
     return (
         <Acronym long='Confluent Certified Operator for Apache Kafka' short='CCOAK' url='https://www.confluent.io/certification/'/>
@@ -153,5 +169,23 @@ export const CCOAK = () => {
 export const CCDAK = () => {
     return (
         <Acronym long='Confluent Certified Developer for Apache Kafka' short='CCDAK' url='https://www.confluent.io/certification/'/>
+    )
+}
+
+export const ELK = () => {
+    return (
+        <Acronym long='Elasticsearch, Logstash, and Kibana' short='ELK' url='https://aws.amazon.com/opensearch-service/the-elk-stack/'/>
+    )
+}
+
+export const IntelliJ = () => {
+    return (
+        <TechLink name='IntelliJ IDEA' url='https://www.jetbrains.com/idea/'/>
+    )
+}
+
+export const ProjectReactor = () => {
+    return (
+        <TechLink name='Project Reactor' url='https://projectreactor.io/'/>
     )
 }
