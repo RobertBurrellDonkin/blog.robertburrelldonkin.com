@@ -154,6 +154,12 @@ export const Google = () => {
     )
 }
 
+export const Splunk = () => {
+    return (
+        <TechLink name='Splunk' url='https://www.splunk.com/'/>
+    )
+}
+
 export const CCOAK = () => {
     return (
         <Acronym long='Confluent Certified Operator for Apache Kafka' short='CCOAK' url='https://www.confluent.io/certification/'/>
@@ -163,5 +169,11 @@ export const CCOAK = () => {
 export const CCDAK = () => {
     return (
         <Acronym long='Confluent Certified Developer for Apache Kafka' short='CCDAK' url='https://www.confluent.io/certification/'/>
+    )
+}
+
+export const ELK = () => {
+    return (
+        <Acronym long='Elasticsearch, Logstash, and Kibana' short='ELK' url='https://aws.amazon.com/opensearch-service/the-elk-stack/'/>
     )
 }
