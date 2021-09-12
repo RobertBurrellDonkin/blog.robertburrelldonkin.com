@@ -40,6 +40,12 @@ export const Swagger = () => {
     return (<TechLink name='Swagger' url='https://swagger.io/'/>)
 }
 
+export const AWS = () => {
+    return (
+        <TechLink name='AWS!!' url='https://aws.amazon.com/'/>
+    )
+}
+
 export const AmazonCorretto = () => {
     return (<a href='https://aws.amazon.com/corretto/'>Amazon Corretto</a>)
 }
