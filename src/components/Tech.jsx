@@ -177,3 +177,15 @@ export const ELK = () => {
         <Acronym long='Elasticsearch, Logstash, and Kibana' short='ELK' url='https://aws.amazon.com/opensearch-service/the-elk-stack/'/>
     )
 }
+
+export const IntelliJ = () => {
+    return (
+        <TechLink name='IntelliJ IDEA' url='https://www.jetbrains.com/idea/'/>
+    )
+}
+
+export const ProjectReactor = () => {
+    return (
+        <TechLink name='Project Reactor' url='https://projectreactor.io/'/>
+    )
+}
