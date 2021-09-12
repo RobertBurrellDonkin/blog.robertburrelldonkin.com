@@ -36,6 +36,10 @@ TechLink.propTypes = {
     url: PropTypes.string.isRequired
 }
 
+export const Swagger = () => {
+    return (<TechLink name='Swagger' url='https://swagger.io/'/>)
+}
+
 export const AmazonCorretto = () => {
     return (<a href='https://aws.amazon.com/corretto/'>Amazon Corretto</a>)
 }
