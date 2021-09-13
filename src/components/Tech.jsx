@@ -196,8 +196,20 @@ export const Postman = () => {
     )
 }
 
-export const AdvancedRestClient = () => {
+export const Android = () => {
     return (
-        <TechLink name='Advanced Rest Client' url='https://install.advancedrestclient.com/install'/>
+        <TechLink name='Android' url='https://developer.android.com/'/>
+    )
+}
+
+export const Gentoo = () => {
+    return (
+        <TechLink name='Gentoo' url='https://www.gentoo.org'/>
+    )
+}
+
+export const StackOverflow = () => {
+    return (
+        <TechLink name='StackOverflow' url='https://stackoverflow.com/'/>
     )
 }

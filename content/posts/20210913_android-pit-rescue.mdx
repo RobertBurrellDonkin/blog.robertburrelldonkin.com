@@ -1,0 +1,36 @@
+---
+title: "Android: Set Up"
+date: 2021-09-13
+tags:
+ - android
+ - lifestyle
+ - development
+ - gentoo
+ - linux
+---
+
+
+import {Gentoo, Android, StackOverflow} from "../../src/components/Tech"
+
+Been a while since I've done any <Android/>.
+
+Too long.
+
+Too long for my old set-up on <Gentoo/> to be viable.
+
+There's a little side-project on my mind. Maybe Android. Maybe Alexa. Perhaps neither.
+
+So I invested some time this weekend setting back up a development environment for Android.
+
+Turns out that the Gentoo packages are in need of a little more love. But the thing I really love about Gentoo is
+that it empowers me to whatever whimsical solution suits my fancy. No two Gentoo systems are ever quite the same.
+
+Turns out that I need some ```udev``` rules. Packages exist but the source is on
+[github](https://github.com/M0Rf30/android-udev-rules/). Okay. Tried that. No joy.
+
+But lengthy as that the rules are, they support only a few dozen devices. If - like me - you have a cheap device badged
+by a second tier manufacturer, then consult <StackOverflow/> eg
+
+https://stackoverflow.com/questions/43771918/how-do-i-set-up-udev-rules-for-debugging-a-physical-android-device-with-android
+
+And with a custom rule, my tablet displayed my "Hello, World"
