@@ -189,3 +189,15 @@ export const ProjectReactor = () => {
         <TechLink name='Project Reactor' url='https://projectreactor.io/'/>
     )
 }
+
+export const Postman = () => {
+    return (
+        <TechLink name='Postman' url='https://www.postman.com/'/>
+    )
+}
+
+export const AdvancedRestClient = () => {
+    return (
+        <TechLink name='Advanced Rest Client' url='https://install.advancedrestclient.com/install'/>
+    )
+}
