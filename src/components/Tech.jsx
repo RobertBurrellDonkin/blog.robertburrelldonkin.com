@@ -213,3 +213,9 @@ export const StackOverflow = () => {
         <TechLink name='StackOverflow' url='https://stackoverflow.com/'/>
     )
 }
+
+export const AdvancedRestClient = () => {
+    return (
+        <TechLink name='Advanced Rest Client' url='https://install.advancedrestclient.com/install'/>
+    )
+}
