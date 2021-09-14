@@ -41,3 +41,8 @@ const liveEvents = {
 // Microservice Collaboration - Events, sagas, and schemas
 // September 2, 2021
 // Sam Newman
+//
+// AMAZON WEB SERVICES (AWS)
+// September 13 & 14, 2021
+// AWS Certified Solutions Architect - Professional Crash Course
+// Chad Smith
