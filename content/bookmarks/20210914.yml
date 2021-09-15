@@ -1,0 +1,18 @@
+---
+title: Hexagonal Architecture
+url: https://alistair.cockburn.us/hexagonal-architecture/
+tags:
+  - microservices
+  - agile
+  - architecture
+---
+title: k9s
+url: https://github.com/derailed/k9s
+tags:
+  - kubernates
+---
+title: jib
+url: https://github.com/GoogleContainerTools/jib
+tags:
+  - containers
+---
