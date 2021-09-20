@@ -226,8 +226,20 @@ export const Kubernetes = () => {
     )
 }
 
+export const Minikube = () => {
+    return (
+        <TechLink name='Minikube' url='https://github.com/kubernetes/minikube'/>
+    )
+}
+
 export const LinuxFoundation = () => {
     return (
         <TechLink name='The Linux Foundation' url='https://www.linuxfoundation.org/'/>
+    )
+}
+
+export const Docker = () => {
+    return (
+        <TechLink name='Docker' url='https://www.docker.com/'/>
     )
 }
