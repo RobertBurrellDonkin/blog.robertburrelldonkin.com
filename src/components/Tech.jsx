@@ -219,3 +219,15 @@ export const AdvancedRestClient = () => {
         <TechLink name='Advanced Rest Client' url='https://install.advancedrestclient.com/install'/>
     )
 }
+
+export const Kubernetes = () => {
+    return (
+        <TechLink name='Kubernetes' url='https://kubernetes.io/'/>
+    )
+}
+
+export const LinuxFoundation = () => {
+    return (
+        <TechLink name='The Linux Foundation' url='https://www.linuxfoundation.org/'/>
+    )
+}
