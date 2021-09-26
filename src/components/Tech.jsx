@@ -71,7 +71,7 @@ export const VisualStudio = () => {
 }
 
 export const Java = () => {
-    return (<a href='https://www.java.com'>VB</a>)
+    return (<a href='https://www.java.com'>Java</a>)
 }
 
 export const OpenSource = () => {
@@ -241,5 +241,11 @@ export const LinuxFoundation = () => {
 export const Docker = () => {
     return (
         <TechLink name='Docker' url='https://www.docker.com/'/>
+    )
+}
+
+export const Kotlin = () => {
+    return (
+        <TechLink name='Kotlin' url='https://kotlinlang.org/'/>
     )
 }
