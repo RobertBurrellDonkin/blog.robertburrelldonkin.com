@@ -71,7 +71,7 @@ export const VisualStudio = () => {
 }
 
 export const Java = () => {
-    return (<a href='https://www.java.com'>VB</a>)
+    return (<a href='https://www.java.com'>Java</a>)
 }
 
 export const OpenSource = () => {
