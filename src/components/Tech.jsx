@@ -243,3 +243,9 @@ export const Docker = () => {
         <TechLink name='Docker' url='https://www.docker.com/'/>
     )
 }
+
+export const Kotlin = () => {
+    return (
+        <TechLink name='Kotlin' url='https://kotlinlang.org/'/>
+    )
+}

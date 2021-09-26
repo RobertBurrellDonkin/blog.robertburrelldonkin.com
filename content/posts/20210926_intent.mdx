@@ -1,0 +1,40 @@
+---
+title: "Intent"
+date: 2021-09-26
+tags:
+ - lifestyle
+ - android
+ - software development
+---
+
+
+import {Android, Kotlin, Java, Google} from "../../src/components/Tech"
+
+Mobile and UX people often like to talk about *user* intent. A user intends to open an email or open a browser.
+A rich UX facilitates this by allowing the user to configure their preferred option to make that happen - or
+just discover a feature on demand - across process and application boundaries.
+The <Android/> API even includes ```Intent``` as a first class object in its UI model.
+
+Like many concepts, I encountered this before when putting together the mobile front end of the IoT POC.
+I needed various background and foreground services to communicate over bluetooth LE with the sensors capturing
+body data and then hand off to my edge microservices.
+
+As is often the case, I didn't really get the universal quality of ```Intent``` at that stage. I usually need to
+triangulate. This <Android/> side project set me thinking again about ```Intent```.
+
+This time though (as usually) I'm engineering a near-real-time concurrent system, this time it make more sense to
+keep everything within a single process boundary. Which means no need to expose external ```Intent```.
+
+My intent had been to talk about intent in software development, though.
+
+Back when I spent a lot my time mentoring and leading small teams, intent was a concept I talked about a lot. I found
+it really useful in giving a high level perspective around tradeoffs in agile.
+
+I like to talk about good code communicating clearly the intent of the developer. Feeling the urge to add comments to
+code for me is a little warning bell sounding. My code has failed to communicate clearly my intent. When it's something
+subtle or unusual, yes comments are great. When it's a shared API then high quality documentation is really important.
+
+But thinking about using comments to explain and justify poor choices, then it's time to step back, brew a tea and
+refactoring until the code clearly communicates your intent.
+
+I reached that stage last night. This morning, it's refactoring time. Wish me luck!
