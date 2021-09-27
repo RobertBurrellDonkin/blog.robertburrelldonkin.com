@@ -249,3 +249,21 @@ export const Kotlin = () => {
         <TechLink name='Kotlin' url='https://kotlinlang.org/'/>
     )
 }
+
+export const Ionic = () => {
+    return (
+        <TechLink name='Ionic' url='https://ionicframework.com/'/>
+    )
+}
+
+export const SpringBoot = () => {
+    return (
+        <TechLink name='Spring Boot' url='https://spring.io/microservices'/>
+    )
+}
+
+export const Akka = () => {
+    return (
+        <TechLink name='Akka' url='https://akka.io/'/>
+    )
+}
