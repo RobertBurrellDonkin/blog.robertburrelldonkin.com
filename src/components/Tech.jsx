@@ -267,3 +267,9 @@ export const Akka = () => {
         <TechLink name='Akka' url='https://akka.io/'/>
     )
 }
+
+export const EKS = () => {
+    return (
+        <TechLink name='EKS' url='https://akka.io/'/>
+    )
+}
