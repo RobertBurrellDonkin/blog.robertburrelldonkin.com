@@ -69,3 +69,9 @@ url: https://12factor.net
 tags:
   - architecture
 ---
+title: Beanstalkd
+url: https://beanstalkd.github.io/
+tags:
+  - queue
+  - open source
+---
