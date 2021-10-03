@@ -1,0 +1,71 @@
+---
+title: Specker Deck
+url: https://speakerdeck.com/
+tags:
+  - lifestyle
+  - presentations
+---
+title: An Illustrated Guide To Kubernetes Networking
+url: https://speakerdeck.com/thockin/illustrated-guide-to-kubernetes-networking
+tags:
+  - kubernates
+  - networking
+---
+title: Borg and Kubernetes with John Wilkes
+url: https://www.gcppodcast.com/post/episode-46-borg-and-k8s-with-john-wilkes/
+tags:
+  - kubernates
+  - google
+  - borg
+---
+title: Large-scale cluster management at Google with Borg
+url: https://research.google/pubs/pub43438/
+tags:
+  - kubernates
+  - google
+  - borg
+---
+title: Romana Project
+url: https://romana.io/
+tags:
+  - kubernates
+  - networking
+  - security
+  - open source
+  - routing
+---
+title: Project Calico
+url: https://www.tigera.io/project-calico/
+tags:
+  - kubernates
+  - networking
+  - security
+  - open source
+---
+title: Flannel
+url: https://github.com/flannel-io/flannel
+tags:
+  - kubernates
+  - networking
+  - open source
+---
+title: Weave Net
+url: https://www.weave.works/oss/net/
+tags:
+  - kubernates
+  - networking
+  - security
+  - discovery
+---
+title: CNI - the Container Network Interface
+url: https://github.com/containernetworking/cni
+tags:
+  - kubernates
+  - networking
+  - open source
+---
+title: The Twelve-Factor App
+url: https://12factor.net
+tags:
+  - architecture
+---
